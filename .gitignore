@@ -1,0 +1,27 @@
+# Visual Studio directories
+.vs/
+*.suo
+*.user
+*.sln.docstates
+
+# NuGet packages
+.nuget/
+packages/
+*.nupkg
+
+# Build outputs
+bin/
+obj/
+*.dll
+*.pdb
+
+# Test results
+TestResults/
+*.trx
+
+# Logs
+*.log
+
+# OS files
+Thumbs.db
+.DS_Store
