@@ -9,7 +9,10 @@ namespace DeviceModule
     {
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            containerRegistry.RegisterForNavigation<DeviceManagementView, DeviceManagementViewModel>();
             containerRegistry.RegisterForNavigation<DeviceStateView, DeviceStateViewModel>();
+            containerRegistry.Register<DeviceWizardViewModel>();
+            containerRegistry.Register<DeviceTreeViewModel>();
         }
 
         public void OnInitialized(IContainerProvider containerProvider)

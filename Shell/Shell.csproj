@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net8.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MaterialDesignColors" Version="3.0.0" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.0.0" />
     <PackageReference Include="Prism.Core" Version="9.0.537" />
     <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
@@ -18,5 +20,10 @@
     <ProjectReference Include="..\Modules\DeviceModule\DeviceModule.csproj" />
     <ProjectReference Include="..\Modules\AlarmModule\AlarmModule.csproj" />
     <ProjectReference Include="..\Modules\OperationModule\OperationModule.csproj" />
+    <ProjectReference Include="..\Modules\DataCollectionModule\DataCollectionModule.csproj" />
+    <ProjectReference Include="..\Modules\ReportModule\ReportModule.csproj" />
+    <ProjectReference Include="..\Modules\UserModule\UserModule.csproj" />
+    <ProjectReference Include="..\Modules\SettingsModule\SettingsModule.csproj" />
+    <ProjectReference Include="..\Modules\LogModule\LogModule.csproj" />
   </ItemGroup>
 </Project>
