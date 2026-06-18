@@ -23,10 +23,10 @@ namespace Shell.ViewModels
         //导航菜单命令集合
         private ObservableCollection<MenuItemModel> BuildNavItems() => new()
         {
-            new MenuItemModel { Header = "设备信息", IconKind = "Monitor", Command = new DelegateCommand(() => NavigateTo("HomeView")) },
+            new MenuItemModel { Header = "设备信息", IconKind = "Monitor", Command = new DelegateCommand(() => NavigateTo("DeviceManagementView")) },
             new MenuItemModel { Header = "报警信息", IconKind = "Alert", Command = new DelegateCommand(() => NavigateTo("AlarmView")) },
             new MenuItemModel { Header = "参数下发", IconKind = "Download", Command = new DelegateCommand(() => NavigateTo("OperateView")) },
-            new MenuItemModel { Header = "操作日志", IconKind = "History", Command = new DelegateCommand(() => NavigateTo("LogView")) },
+            new MenuItemModel { Header = "设备状态", IconKind = "History", Command = new DelegateCommand(() => NavigateTo("DeviceStateView")) },
             new MenuItemModel { Header = "状态机演示", IconKind = "StateMachine", Command = new DelegateCommand(() => NavigateTo("StateMachineView")) },
         };
 

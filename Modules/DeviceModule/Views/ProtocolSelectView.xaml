@@ -3,8 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:DeviceModule.ViewModels"
              xmlns:m="clr-namespace:Core.Models;assembly=Core"
+             xmlns:i="clr-namespace:Core.Interfaces;assembly=Core"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+             xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
              Background="#0F1626">
     <Grid Margin="24">
         <Grid.RowDefinitions>
@@ -24,7 +25,7 @@
                     <Border.Style>
                         <Style TargetType="Border">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding NewDevice.ProtocolType}" Value="{x:Static m:ProtocolType.ModbusTcp}">
+                                <DataTrigger Binding="{Binding NewDevice.ProtocolType}" Value="{x:Static i:ProtocolType.ModbusTcp}">
                                     <Setter Property="BorderBrush" Value="#3B82F6" />
                                     <Setter Property="Background" Value="#1E3A5F" />
                                 </DataTrigger>
@@ -36,11 +37,11 @@
                         <TextBlock Text="Modbus TCP" Foreground="#E2E8F0" FontSize="14" Margin="0,8,0,0" />
                         <TextBlock Text="基于TCP/IP的Modbus协议" Foreground="#6B7280" FontSize="11" Margin="0,4,0,0" />
                     </StackPanel>
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseLeftButtonDown">
-                            <i:InvokeCommandAction Command="{Binding SelectProtocolCommand}" CommandParameter="{x:Static m:ProtocolType.ModbusTcp}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="MouseLeftButtonDown">
+                            <b:InvokeCommandAction Command="{Binding SelectProtocolCommand}" CommandParameter="{x:Static i:ProtocolType.ModbusTcp}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                 </Border>
                 
                 <Border Width="200" Height="120" Margin="0,0,16,16" 
@@ -49,7 +50,7 @@
                     <Border.Style>
                         <Style TargetType="Border">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding NewDevice.ProtocolType}" Value="{x:Static m:ProtocolType.ModbusRtu}">
+                                <DataTrigger Binding="{Binding NewDevice.ProtocolType}" Value="{x:Static i:ProtocolType.ModbusRtu}">
                                     <Setter Property="BorderBrush" Value="#3B82F6" />
                                     <Setter Property="Background" Value="#1E3A5F" />
                                 </DataTrigger>
@@ -61,11 +62,11 @@
                         <TextBlock Text="Modbus RTU" Foreground="#E2E8F0" FontSize="14" Margin="0,8,0,0" />
                         <TextBlock Text="基于串口的Modbus协议" Foreground="#6B7280" FontSize="11" Margin="0,4,0,0" />
                     </StackPanel>
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseLeftButtonDown">
-                            <i:InvokeCommandAction Command="{Binding SelectProtocolCommand}" CommandParameter="{x:Static m:ProtocolType.ModbusRtu}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="MouseLeftButtonDown">
+                            <b:InvokeCommandAction Command="{Binding SelectProtocolCommand}" CommandParameter="{x:Static i:ProtocolType.ModbusRtu}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                 </Border>
                 
                 <Border Width="200" Height="120" Margin="0,0,16,16" 
@@ -74,7 +75,7 @@
                     <Border.Style>
                         <Style TargetType="Border">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding NewDevice.ProtocolType}" Value="{x:Static m:ProtocolType.S7}">
+                                <DataTrigger Binding="{Binding NewDevice.ProtocolType}" Value="{x:Static i:ProtocolType.S7}">
                                     <Setter Property="BorderBrush" Value="#3B82F6" />
                                     <Setter Property="Background" Value="#1E3A5F" />
                                 </DataTrigger>
@@ -82,15 +83,15 @@
                         </Style>
                     </Border.Style>
                     <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <materialDesign:PackIcon Kind="Cpu" Width="40" Height="40" Foreground="#F59E0B" />
+                        <materialDesign:PackIcon Kind="Server" Width="40" Height="40" Foreground="#F59E0B" />
                         <TextBlock Text="西门子 S7" Foreground="#E2E8F0" FontSize="14" Margin="0,8,0,0" />
                         <TextBlock Text="S7-300/400/1200/1500" Foreground="#6B7280" FontSize="11" Margin="0,4,0,0" />
                     </StackPanel>
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseLeftButtonDown">
-                            <i:InvokeCommandAction Command="{Binding SelectProtocolCommand}" CommandParameter="{x:Static m:ProtocolType.S7}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="MouseLeftButtonDown">
+                            <b:InvokeCommandAction Command="{Binding SelectProtocolCommand}" CommandParameter="{x:Static i:ProtocolType.S7}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                 </Border>
                 
                 <Border Width="200" Height="120" Margin="0,0,16,16" 
@@ -99,7 +100,7 @@
                     <Border.Style>
                         <Style TargetType="Border">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding NewDevice.ProtocolType}" Value="{x:Static m:ProtocolType.TcpIp}">
+                                <DataTrigger Binding="{Binding NewDevice.ProtocolType}" Value="{x:Static i:ProtocolType.TcpIp}">
                                     <Setter Property="BorderBrush" Value="#3B82F6" />
                                     <Setter Property="Background" Value="#1E3A5F" />
                                 </DataTrigger>
@@ -111,11 +112,11 @@
                         <TextBlock Text="TCP/IP" Foreground="#E2E8F0" FontSize="14" Margin="0,8,0,0" />
                         <TextBlock Text="自定义TCP协议" Foreground="#6B7280" FontSize="11" Margin="0,4,0,0" />
                     </StackPanel>
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseLeftButtonDown">
-                            <i:InvokeCommandAction Command="{Binding SelectProtocolCommand}" CommandParameter="{x:Static m:ProtocolType.TcpIp}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="MouseLeftButtonDown">
+                            <b:InvokeCommandAction Command="{Binding SelectProtocolCommand}" CommandParameter="{x:Static i:ProtocolType.TcpIp}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                 </Border>
                 
                 <Border Width="200" Height="120" Margin="0,0,16,16" 
@@ -124,7 +125,7 @@
                     <Border.Style>
                         <Style TargetType="Border">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding NewDevice.ProtocolType}" Value="{x:Static m:ProtocolType.OpcUa}">
+                                <DataTrigger Binding="{Binding NewDevice.ProtocolType}" Value="{x:Static i:ProtocolType.OpcUa}">
                                     <Setter Property="BorderBrush" Value="#3B82F6" />
                                     <Setter Property="Background" Value="#1E3A5F" />
                                 </DataTrigger>
@@ -136,11 +137,11 @@
                         <TextBlock Text="OPC UA" Foreground="#E2E8F0" FontSize="14" Margin="0,8,0,0" />
                         <TextBlock Text="工业标准通信协议" Foreground="#6B7280" FontSize="11" Margin="0,4,0,0" />
                     </StackPanel>
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseLeftButtonDown">
-                            <i:InvokeCommandAction Command="{Binding SelectProtocolCommand}" CommandParameter="{x:Static m:ProtocolType.OpcUa}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="MouseLeftButtonDown">
+                            <b:InvokeCommandAction Command="{Binding SelectProtocolCommand}" CommandParameter="{x:Static i:ProtocolType.OpcUa}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                 </Border>
                 
                 <Border Width="200" Height="120" Margin="0,0,16,16" 
@@ -149,7 +150,7 @@
                     <Border.Style>
                         <Style TargetType="Border">
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding NewDevice.ProtocolType}" Value="{x:Static m:ProtocolType.Custom}">
+                                <DataTrigger Binding="{Binding NewDevice.ProtocolType}" Value="{x:Static i:ProtocolType.Custom}">
                                     <Setter Property="BorderBrush" Value="#3B82F6" />
                                     <Setter Property="Background" Value="#1E3A5F" />
                                 </DataTrigger>
@@ -161,11 +162,11 @@
                         <TextBlock Text="自定义协议" Foreground="#E2E8F0" FontSize="14" Margin="0,8,0,0" />
                         <TextBlock Text="用户自定义协议" Foreground="#6B7280" FontSize="11" Margin="0,4,0,0" />
                     </StackPanel>
-                    <i:Interaction.Triggers>
-                        <i:EventTrigger EventName="MouseLeftButtonDown">
-                            <i:InvokeCommandAction Command="{Binding SelectProtocolCommand}" CommandParameter="{x:Static m:ProtocolType.Custom}" />
-                        </i:EventTrigger>
-                    </i:Interaction.Triggers>
+                    <b:Interaction.Triggers>
+                        <b:EventTrigger EventName="MouseLeftButtonDown">
+                            <b:InvokeCommandAction Command="{Binding SelectProtocolCommand}" CommandParameter="{x:Static i:ProtocolType.Custom}" />
+                        </b:EventTrigger>
+                    </b:Interaction.Triggers>
                 </Border>
             </WrapPanel>
         </ScrollViewer>

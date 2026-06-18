@@ -43,110 +43,122 @@ namespace Infrastructure.Communication
             {
                 try
                 {
-                    var temp = await _modbusService.ReadInputRegistersAsync(_pointTableService.Temp1.SlaveId, _pointTableService.Temp1.Address, 2);
+                    var temp1 = (ModbusDataPoint)_pointTableService.Temp1;
+                    var temp = await _modbusService.ReadInputRegistersAsync(temp1.SlaveId, temp1.RegisterAddress, 2);
                     await _readChannel.Writer.WriteAsync(new ModbusReadResult
                     {
-                        SlaveId = _pointTableService.Temp1.SlaveId,
-                        StartAddress = _pointTableService.Temp1.Address,
+                        SlaveId = temp1.SlaveId,
+                        StartAddress = temp1.RegisterAddress,
                         Function = ModbusFunctionCode.ReadInputRegisters,
                         RegisterValues = temp,
                     }, ct);
 
-                    var dehumidifierStatus = await _modbusService.ReadCoilsAsync(_pointTableService.Dehumidifier1.SlaveId, _pointTableService.Dehumidifier1.Address, 3);
+                    var dehumidifier1 = (ModbusDataPoint)_pointTableService.Dehumidifier1;
+                    var dehumidifierStatus = await _modbusService.ReadCoilsAsync(dehumidifier1.SlaveId, dehumidifier1.RegisterAddress, 3);
                     await _readChannel.Writer.WriteAsync(new ModbusReadResult
                     {
-                        SlaveId = _pointTableService.Dehumidifier1.SlaveId,
-                        StartAddress = _pointTableService.Dehumidifier1.Address,
+                        SlaveId = dehumidifier1.SlaveId,
+                        StartAddress = dehumidifier1.RegisterAddress,
                         Function = ModbusFunctionCode.ReadCoils,
                         CoilValues = dehumidifierStatus,
                     }, ct);
 
-                    var acStatus = await _modbusService.ReadCoilsAsync(_pointTableService.AirConditioner.SlaveId, _pointTableService.AirConditioner.Address, 1);
+                    var airConditioner = (ModbusDataPoint)_pointTableService.AirConditioner;
+                    var acStatus = await _modbusService.ReadCoilsAsync(airConditioner.SlaveId, airConditioner.RegisterAddress, 1);
                     await _readChannel.Writer.WriteAsync(new ModbusReadResult
                     {
-                        SlaveId = _pointTableService.AirConditioner.SlaveId,
-                        StartAddress = _pointTableService.AirConditioner.Address,
+                        SlaveId = airConditioner.SlaveId,
+                        StartAddress = airConditioner.RegisterAddress,
                         Function = ModbusFunctionCode.ReadCoils,
                         CoilValues = acStatus,
                     }, ct);
 
-                    var liquidCoolingStatus = await _modbusService.ReadInputRegistersAsync(_pointTableService.LiquidTemperature.SlaveId, _pointTableService.LiquidTemperature.Address, 1);
+                    var liquidTemp = (ModbusDataPoint)_pointTableService.LiquidTemperature;
+                    var liquidCoolingStatus = await _modbusService.ReadInputRegistersAsync(liquidTemp.SlaveId, liquidTemp.RegisterAddress, 1);
                     await _readChannel.Writer.WriteAsync(new ModbusReadResult
                     {
-                        SlaveId = _pointTableService.LiquidTemperature.SlaveId,
-                        StartAddress = _pointTableService.LiquidTemperature.Address,
+                        SlaveId = liquidTemp.SlaveId,
+                        StartAddress = liquidTemp.RegisterAddress,
                         Function = ModbusFunctionCode.ReadInputRegisters,
                         RegisterValues = liquidCoolingStatus,
                     }, ct);
 
-                    var liquidCoolingSetpoint = await _modbusService.ReadHoldingRegistersAsync(_pointTableService.LiquidSetCoolTemp.SlaveId, _pointTableService.LiquidSetCoolTemp.Address, 2);
+                    var liquidSetCool = (ModbusDataPoint)_pointTableService.LiquidSetCoolTemp;
+                    var liquidCoolingSetpoint = await _modbusService.ReadHoldingRegistersAsync(liquidSetCool.SlaveId, liquidSetCool.RegisterAddress, 2);
                     await _readChannel.Writer.WriteAsync(new ModbusReadResult
                     {
-                        SlaveId = _pointTableService.LiquidSetCoolTemp.SlaveId,
-                        StartAddress = _pointTableService.LiquidSetCoolTemp.Address,
+                        SlaveId = liquidSetCool.SlaveId,
+                        StartAddress = liquidSetCool.RegisterAddress,
                         Function = ModbusFunctionCode.ReadHoldingRegisters,
                         RegisterValues = liquidCoolingSetpoint,
                     }, ct);
 
-                    var waterSensorStatus = await _modbusService.ReadCoilsAsync(_pointTableService.WaterSensor1.SlaveId, _pointTableService.WaterSensor1.Address, 1);
+                    var waterSensor1 = (ModbusDataPoint)_pointTableService.WaterSensor1;
+                    var waterSensorStatus = await _modbusService.ReadCoilsAsync(waterSensor1.SlaveId, waterSensor1.RegisterAddress, 1);
                     await _readChannel.Writer.WriteAsync(new ModbusReadResult
                     {
-                        SlaveId = _pointTableService.WaterSensor1.SlaveId,
-                        StartAddress = _pointTableService.WaterSensor1.Address,
+                        SlaveId = waterSensor1.SlaveId,
+                        StartAddress = waterSensor1.RegisterAddress,
                         Function = ModbusFunctionCode.ReadCoils,
                         CoilValues = waterSensorStatus,
                     }, ct);
 
-                    var waterSensorStatus2 = await _modbusService.ReadCoilsAsync(_pointTableService.WaterSensor2.SlaveId, _pointTableService.WaterSensor2.Address, 1);
+                    var waterSensor2 = (ModbusDataPoint)_pointTableService.WaterSensor2;
+                    var waterSensorStatus2 = await _modbusService.ReadCoilsAsync(waterSensor2.SlaveId, waterSensor2.RegisterAddress, 1);
                     await _readChannel.Writer.WriteAsync(new ModbusReadResult
                     {
-                        SlaveId = _pointTableService.WaterSensor2.SlaveId,
-                        StartAddress = _pointTableService.WaterSensor2.Address,
+                        SlaveId = waterSensor2.SlaveId,
+                        StartAddress = waterSensor2.RegisterAddress,
                         Function = ModbusFunctionCode.ReadCoils,
                         CoilValues = waterSensorStatus2,
                     }, ct);
 
-                    var fuseStatus = await _modbusService.ReadCoilsAsync(_pointTableService.Fuse1.SlaveId, _pointTableService.Fuse1.Address, 1);
+                    var fuse1 = (ModbusDataPoint)_pointTableService.Fuse1;
+                    var fuseStatus = await _modbusService.ReadCoilsAsync(fuse1.SlaveId, fuse1.RegisterAddress, 1);
                     await _readChannel.Writer.WriteAsync(new ModbusReadResult
                     {
-                        SlaveId = _pointTableService.Fuse1.SlaveId,
-                        StartAddress = _pointTableService.Fuse1.Address,
+                        SlaveId = fuse1.SlaveId,
+                        StartAddress = fuse1.RegisterAddress,
                         Function = ModbusFunctionCode.ReadCoils,
                         CoilValues = fuseStatus,
                     }, ct);
 
-                    var fuseStatus2 = await _modbusService.ReadCoilsAsync(_pointTableService.Fuse2.SlaveId, _pointTableService.Fuse2.Address, 1);
+                    var fuse2 = (ModbusDataPoint)_pointTableService.Fuse2;
+                    var fuseStatus2 = await _modbusService.ReadCoilsAsync(fuse2.SlaveId, fuse2.RegisterAddress, 1);
                     await _readChannel.Writer.WriteAsync(new ModbusReadResult
                     {
-                        SlaveId = _pointTableService.Fuse2.SlaveId,
-                        StartAddress = _pointTableService.Fuse2.Address,
+                        SlaveId = fuse2.SlaveId,
+                        StartAddress = fuse2.RegisterAddress,
                         Function = ModbusFunctionCode.ReadCoils,
                         CoilValues = fuseStatus2,
                     }, ct);
 
-                    var fuseStatus3 = await _modbusService.ReadCoilsAsync(_pointTableService.Fuse3.SlaveId, _pointTableService.Fuse3.Address, 1);
+                    var fuse3 = (ModbusDataPoint)_pointTableService.Fuse3;
+                    var fuseStatus3 = await _modbusService.ReadCoilsAsync(fuse3.SlaveId, fuse3.RegisterAddress, 1);
                     await _readChannel.Writer.WriteAsync(new ModbusReadResult
                     {
-                        SlaveId = _pointTableService.Fuse3.SlaveId,
-                        StartAddress = _pointTableService.Fuse3.Address,
+                        SlaveId = fuse3.SlaveId,
+                        StartAddress = fuse3.RegisterAddress,
                         Function = ModbusFunctionCode.ReadCoils,
                         CoilValues = fuseStatus3,
                     }, ct);
 
-                    var smokeSensorStatus = await _modbusService.ReadCoilsAsync(_pointTableService.SmokeAlarm.SlaveId, _pointTableService.SmokeAlarm.Address, 1);
+                    var smokeAlarm = (ModbusDataPoint)_pointTableService.SmokeAlarm;
+                    var smokeSensorStatus = await _modbusService.ReadCoilsAsync(smokeAlarm.SlaveId, smokeAlarm.RegisterAddress, 1);
                     await _readChannel.Writer.WriteAsync(new ModbusReadResult
                     {
-                        SlaveId = _pointTableService.SmokeAlarm.SlaveId,
-                        StartAddress = _pointTableService.SmokeAlarm.Address,
+                        SlaveId = smokeAlarm.SlaveId,
+                        StartAddress = smokeAlarm.RegisterAddress,
                         Function = ModbusFunctionCode.ReadCoils,
                         CoilValues = smokeSensorStatus,
                     }, ct);
 
-                    var fireSensorStatus = await _modbusService.ReadCoilsAsync(_pointTableService.FireSystemState.SlaveId, _pointTableService.FireSystemState.Address, 1);
+                    var fireSystem = (ModbusDataPoint)_pointTableService.FireSystemState;
+                    var fireSensorStatus = await _modbusService.ReadCoilsAsync(fireSystem.SlaveId, fireSystem.RegisterAddress, 1);
                     await _readChannel.Writer.WriteAsync(new ModbusReadResult
                     {
-                        SlaveId = _pointTableService.FireSystemState.SlaveId,
-                        StartAddress = _pointTableService.FireSystemState.Address,
+                        SlaveId = fireSystem.SlaveId,
+                        StartAddress = fireSystem.RegisterAddress,
                         Function = ModbusFunctionCode.ReadCoils,
                         CoilValues = fireSensorStatus,
                     }, ct);

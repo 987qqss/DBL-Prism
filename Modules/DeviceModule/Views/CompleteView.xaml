@@ -9,37 +9,75 @@
             <RowDefinition Height="60" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        
-        <Border Grid.Row="0" Background="#1E1E2E" CornerRadius="8" Padding="16">
-            <TextBlock Text="完成" FontSize="14" FontWeight="Bold" Foreground="#E2E8F0" />
+
+        <!-- 标题栏 -->
+        <Border Grid.Row="0" Background="#1E1E2E" CornerRadius="8" Padding="20,12">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <materialDesign:PackIcon Kind="CheckCircle" Width="20" Height="20" Foreground="#22C55E" Margin="0,0,8,0" VerticalAlignment="Center" />
+                <TextBlock Text="配置完成" FontSize="14" FontWeight="Bold" Foreground="#E2E8F0" VerticalAlignment="Center" />
+            </StackPanel>
         </Border>
-        
-        <StackPanel Grid.Row="1" Margin="0,16,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Border Width="120" Height="120" CornerRadius="60" Background="#22C55E" Margin="0,0,0,24">
-                <materialDesign:PackIcon Kind="Check" Width="60" Height="60" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            </Border>
-            
-            <TextBlock Text="设备配置完成" FontSize="24" FontWeight="Bold" Foreground="#E2E8F0" Margin="0,0,0,8" />
-            <TextBlock Text="设备已成功添加到设备列表" FontSize="14" Foreground="#6B7280" />
-            
-            <StackPanel Orientation="Horizontal" Margin="0,24,0,0">
-                <TextBlock Text="设备名称: " Foreground="#94A3B8" />
-                <TextBlock Text="{Binding NewDevice.Name}" Foreground="#E2E8F0" />
+
+        <Grid Grid.Row="1" Margin="0,16,0,0">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="500">
+                <!-- 成功图标 -->
+                <Border Width="100" Height="100" CornerRadius="50" Background="#22C55E" Margin="0,0,0,24" HorizontalAlignment="Center">
+                    <Border.Effect>
+                        <DropShadowEffect Color="#22C55E" BlurRadius="30" ShadowDepth="0" Opacity="0.4" />
+                    </Border.Effect>
+                    <materialDesign:PackIcon Kind="Check" Width="60" Height="60" Foreground="White"
+                                             HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
+
+                <!-- 标题 -->
+                <TextBlock Text="设备配置完成" FontSize="24" FontWeight="Bold" Foreground="#E2E8F0" HorizontalAlignment="Center" Margin="0,0,0,8" />
+                <TextBlock Text="设备已成功添加到设备列表" FontSize="14" Foreground="#94A3B8" HorizontalAlignment="Center" Margin="0,0,0,32" />
+
+                <!-- 设备详情卡片 -->
+                <Border Background="#1E1E2E" CornerRadius="8" Padding="24" Margin="0,0,0,24">
+                    <StackPanel>
+                        <TextBlock Text="设备详情" FontSize="13" FontWeight="Bold" Foreground="#94A3B8" Margin="0,0,0,16" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="100" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="设备名称" Foreground="#94A3B8" Margin="0,0,0,12" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding NewDevice.Name}" Foreground="#E2E8F0" Margin="0,0,0,12" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="通讯协议" Foreground="#94A3B8" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding NewDevice.ProtocolType}" Foreground="#22C55E" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 操作按钮 -->
+                <Button Command="{Binding AddAnotherDeviceCommand}"
+                        Background="#3B82F6"
+                        BorderThickness="0"
+                        Padding="24,12"
+                        HorizontalAlignment="Center">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="8"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Plus" Width="20" Height="20" Foreground="White" VerticalAlignment="Center" />
+                        <TextBlock Text="添加另一个设备" Foreground="White" FontSize="14" FontWeight="Bold" Margin="8,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
             </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="通讯协议: " Foreground="#94A3B8" />
-                <TextBlock Text="{Binding NewDevice.ProtocolType}" Foreground="#E2E8F0" />
-            </StackPanel>
-            
-            <Button Style="{StaticResource PrimaryButtonStyle}"
-                    Command="{Binding AddAnotherDeviceCommand}"
-                    Width="180" Height="40"
-                    Margin="0,24,0,0">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <materialDesign:PackIcon Kind="Plus" Width="16" Height="16" Foreground="White" />
-                    <TextBlock Text="添加另一个设备" Foreground="White" Margin="8,0,0,0" />
-                </StackPanel>
-            </Button>
-        </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>

@@ -9,58 +9,116 @@
             <RowDefinition Height="60" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        
-        <Border Grid.Row="0" Background="#1E1E2E" CornerRadius="8" Padding="16">
-            <TextBlock Text="测试连接" FontSize="14" FontWeight="Bold" Foreground="#E2E8F0" />
+
+        <!-- 标题栏 -->
+        <Border Grid.Row="0" Background="#1E1E2E" CornerRadius="8" Padding="20,12">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <materialDesign:PackIcon Kind="Network" Width="20" Height="20" Foreground="#3B82F6" Margin="0,0,8,0" VerticalAlignment="Center" />
+                <TextBlock Text="测试连接" FontSize="14" FontWeight="Bold" Foreground="#E2E8F0" VerticalAlignment="Center" />
+            </StackPanel>
         </Border>
-        
-        <StackPanel Grid.Row="1" Margin="0,16,0,0">
-            <Border Background="#1E1E2E" CornerRadius="8" Padding="24">
-                <StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="设备信息" FontSize="14" FontWeight="Bold" Foreground="#E2E8F0" Margin="0,0,0,12" />
-                            <TextBlock Text="设备名称: " Foreground="#94A3B8" />
-                            <TextBlock Text="{Binding NewDevice.Name}" Foreground="#E2E8F0" Margin="8,0,0,4" />
-                            <TextBlock Text="通讯协议: " Foreground="#94A3B8" />
-                            <TextBlock Text="{Binding NewDevice.ProtocolType}" Foreground="#E2E8F0" Margin="8,0,0,4" />
-                            <TextBlock Text="IP地址: " Foreground="#94A3B8" />
-                            <TextBlock Text="{Binding NewDevice.IpAddress}" Foreground="#E2E8F0" Margin="8,0,0,4" />
-                            <TextBlock Text="端口: " Foreground="#94A3B8" />
-                            <TextBlock Text="{Binding NewDevice.Port}" Foreground="#E2E8F0" Margin="8,0,0,4" />
+
+        <ScrollViewer Grid.Row="1" Margin="0,16,0,0" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- 设备信息卡片 -->
+                <Border Background="#1E1E2E" CornerRadius="8" Padding="20" Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="设备信息" FontSize="13" FontWeight="Bold" Foreground="#94A3B8" Margin="0,0,0,16" />
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="120" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="设备名称" Foreground="#94A3B8" Margin="0,0,0,12" />
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding NewDevice.Name}" Foreground="#E2E8F0" Margin="0,0,0,12" />
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="通讯协议" Foreground="#94A3B8" Margin="0,0,0,12" />
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding NewDevice.ProtocolType}" Foreground="#22C55E" Margin="0,0,0,12" />
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="IP地址" Foreground="#94A3B8" Margin="0,0,0,12" />
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding NewDevice.IpAddress}" Foreground="#E2E8F0" Margin="0,0,0,12" />
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="端口" Foreground="#94A3B8" />
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding NewDevice.Port}" Foreground="#E2E8F0" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 测试连接按钮 -->
+                <Button Command="{Binding TestConnectionCommand}"
+                        IsEnabled="{Binding CanTestConnection}"
+                        Background="#3B82F6"
+                        BorderThickness="0"
+                        Padding="24,12"
+                        HorizontalAlignment="Stretch"
+                        Margin="0,0,0,16">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="8"
+                                    Padding="{TemplateBinding Padding}">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Connection" Width="20" Height="20" Foreground="White" VerticalAlignment="Center" />
+                        <TextBlock Text="开始测试连接" Foreground="White" FontSize="14" FontWeight="Bold" Margin="8,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Button>
+
+                <!-- 测试结果 -->
+                <Border Background="#0F1626" BorderBrush="#2A2A4A" BorderThickness="1" CornerRadius="8" Padding="20">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,12">
+                            <!-- 结果图标 - 使用 Border 来显示状态 -->
+                            <Border Width="24" Height="24" CornerRadius="12" VerticalAlignment="Center" Margin="0,0,12,0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="#6B7280" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsTesting}" Value="True">
+                                                <Setter Property="Background" Value="#F59E0B" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsConnectionSuccessful}" Value="True">
+                                                <Setter Property="Background" Value="#22C55E" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsConnectionSuccessful}" Value="False">
+                                                <Setter Property="Background" Value="#EF4444" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <materialDesign:PackIcon Kind="Check" Width="16" Height="16" Foreground="White"
+                                                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <materialDesign:PackIcon.Style>
+                                        <Style TargetType="materialDesign:PackIcon">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsConnectionSuccessful}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </materialDesign:PackIcon.Style>
+                                </materialDesign:PackIcon>
+                            </Border>
+
+                            <TextBlock Text="{Binding TestResult}" FontSize="14" FontWeight="Bold" Foreground="#E2E8F0" VerticalAlignment="Center" />
                         </StackPanel>
-                        
-                        <Button Grid.Column="1" 
-                                Style="{StaticResource PrimaryButtonStyle}"
-                                Command="{Binding TestConnectionCommand}"
-                                Width="120" Height="40">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <materialDesign:PackIcon Kind="Refresh" Width="16" Height="16" Foreground="White" />
-                                <TextBlock Text="测试连接" Foreground="White" Margin="8,0,0,0" />
-                            </StackPanel>
-                        </Button>
-                    </Grid>
-                    
-                    <Border x:Name="ResultBorder" 
-                            Background="#161625" 
-                            CornerRadius="8" 
-                            Padding="16"
-                            Margin="0,16,0,0">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Ellipse x:Name="ResultIcon" Width="24" Height="24" Margin="0,0,12,0" />
-                                <TextBlock x:Name="ResultText" FontSize="14" Foreground="#E2E8F0" />
-                            </StackPanel>
-                            <TextBlock x:Name="ResultDetails" Foreground="#6B7280" FontSize="12" Margin="36,8,0,0" />
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-            </Border>
-        </StackPanel>
+
+                        <TextBlock Text="{Binding TestResultDetails}" Foreground="#94A3B8" FontSize="12" TextWrapping="Wrap" LineHeight="20" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </UserControl>

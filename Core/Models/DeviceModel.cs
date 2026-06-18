@@ -1,30 +1,17 @@
+using Core.Interfaces;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace Core.Models
 {
-    //设备模型
-    public class DeviceModel
+    public class DeviceModel : IDevice
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string Name { get; set; } = string.Empty;
         public string ProductionLineId { get; set; } = string.Empty;
-        public ProtocolType ProtocolType { get; set; }
+        public ProtocolType ProtocolType { get; set; }//Э������
         
-        public string IpAddress { get; set; } = string.Empty;
-        public int Port { get; set; } = 502;
-        
-        public string SerialPortName { get; set; } = string.Empty;
-        public int BaudRate { get; set; } = 9600;
-        public int DataBits { get; set; } = 8;
-        public string Parity { get; set; } = "None";
-        public string StopBits { get; set; } = "One";
-        
-        public int S7Rack { get; set; } = 0;
-        public int S7Slot { get; set; } = 2;
-        
-        public byte SlaveId { get; set; } = 1;
-        public int Timeout { get; set; } = 3000;
-        public int RetryCount { get; set; } = 3;
+        public IProtocolConfig? Config { get; set; }//Э������
         
         public bool IsConnected { get; set; } = false;
         public DeviceStatus Status { get; set; } = DeviceStatus.NotConfigured;
@@ -32,13 +19,44 @@ namespace Core.Models
         public ObservableCollection<DeviceCommand> Commands { get; } = new();
         public DateTime CreatedTime { get; set; } = DateTime.Now;
         public DateTime UpdatedTime { get; set; } = DateTime.Now;
-    }
-
-    public enum DeviceStatus
-    {
-        Online,
-        Offline,
-        NotConfigured,
-        Error
+        
+        public Task<bool> Connect()
+        {
+            Config?.Validate();
+            IsConnected = true;
+            Status = DeviceStatus.Online;
+            return Task.FromResult(true);
+        }
+        
+        public Task Disconnect()
+        {
+            IsConnected = false;
+            Status = DeviceStatus.Offline;
+            return Task.CompletedTask;
+        }
+        
+        public Task<bool> TestConnection()
+        {
+            try
+            {
+                Config?.Validate();
+                return Task.FromResult(true);
+            }
+            catch
+            {
+                return Task.FromResult(false);
+            }
+        }
+        
+        public T GetConfig<T>() where T : IProtocolConfig
+        {
+            return (T)Config!;
+        }
+        
+        public void SetConfig(IProtocolConfig config)
+        {
+            Config = config;
+            ProtocolType = config.ProtocolType;
+        }
     }
 }

@@ -1,8 +1,4 @@
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Navigation.Regions;
 using Shell.Models;
-using System;
 using System.Collections.ObjectModel;
 using System.Windows;
 

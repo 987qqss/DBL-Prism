@@ -4,6 +4,7 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:vm="clr-namespace:DeviceModule.ViewModels"
              xmlns:m="clr-namespace:Core.Models;assembly=Core"
+             xmlns:i="clr-namespace:Core.Interfaces;assembly=Core"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              prism:ViewModelLocator.AutoWireViewModel="True"
              Background="#1B1B2F">
@@ -21,9 +22,18 @@
                         Margin="8,0,0,0" 
                         Width="24" Height="24"
                         Background="#3B82F6"
-                        Style="{StaticResource CircleButtonStyle}"
                         Command="{Binding AddProductionLineCommand}"
-                        ToolTip="添加产线">
+                        ToolTip="添加产线"
+                        Cursor="Hand">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" 
+                                    CornerRadius="12" 
+                                    Width="24" Height="24">
+                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
                     <TextBlock Text="+" FontSize="16" Foreground="White" />
                 </Button>
             </StackPanel>
@@ -45,16 +55,16 @@
                         <materialDesign:PackIcon x:Name="DeviceIcon" Width="16" Height="16" Margin="0,0,8,0">
                             <materialDesign:PackIcon.Style>
                                 <Style TargetType="materialDesign:PackIcon">
-                                    <Setter Property="Kind" Value="Cpu" />
+                                    <Setter Property="Kind" Value="Server" />
                                     <Setter Property="Foreground" Value="#6B7280" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static m:DeviceStatus.Online}">
+                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static i:DeviceStatus.Online}">
                                             <Setter Property="Foreground" Value="#22C55E" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static m:DeviceStatus.Offline}">
+                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static i:DeviceStatus.Offline}">
                                             <Setter Property="Foreground" Value="#EF4444" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static m:DeviceStatus.NotConfigured}">
+                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static i:DeviceStatus.NotConfigured}">
                                             <Setter Property="Foreground" Value="#F59E0B" />
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -67,13 +77,13 @@
                                 <Style TargetType="Ellipse">
                                     <Setter Property="Fill" Value="#6B7280" />
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static m:DeviceStatus.Online}">
+                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static i:DeviceStatus.Online}">
                                             <Setter Property="Fill" Value="#22C55E" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static m:DeviceStatus.Offline}">
+                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static i:DeviceStatus.Offline}">
                                             <Setter Property="Fill" Value="#EF4444" />
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static m:DeviceStatus.NotConfigured}">
+                                        <DataTrigger Binding="{Binding Status}" Value="{x:Static i:DeviceStatus.NotConfigured}">
                                             <Setter Property="Fill" Value="#F59E0B" />
                                         </DataTrigger>
                                     </Style.Triggers>
@@ -94,10 +104,10 @@
         
         <Border Grid.Row="2" Background="#1E1E2E" Padding="8">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Button Style="{StaticResource FlatButtonStyle}" Command="{Binding ExpandAllCommand}">
+                <Button Style="{StaticResource MenuFlatButtonStyle}" Command="{Binding ExpandAllCommand}">
                     <TextBlock Text="展开全部" FontSize="11" Foreground="#94A3B8" />
                 </Button>
-                <Button Style="{StaticResource FlatButtonStyle}" Command="{Binding CollapseAllCommand}" Margin="16,0,0,0">
+                <Button Style="{StaticResource MenuFlatButtonStyle}" Command="{Binding CollapseAllCommand}" Margin="16,0,0,0">
                     <TextBlock Text="折叠全部" FontSize="11" Foreground="#94A3B8" />
                 </Button>
             </StackPanel>

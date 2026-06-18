@@ -37,6 +37,7 @@ namespace Shell
             containerRegistry.RegisterSingleton<IEventAggregator, EventAggregator>();
             containerRegistry.RegisterSingleton<IPointTableService, PointTableService>();
             containerRegistry.RegisterSingleton<IUserSessionService, UserSessionService>();
+            containerRegistry.RegisterSingleton<IModbusService, ModbusTcpService>();
             containerRegistry.RegisterSingleton<IModbusCommunicationService, ModbusCommunicationService>();
 
             containerRegistry.RegisterForNavigation<HomeView>();

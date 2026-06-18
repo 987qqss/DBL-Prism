@@ -1,6 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Core.Interfaces;
 using Core.Models;
+using Prism.Events;
 using System.Collections.ObjectModel;
 
 namespace DeviceModule.ViewModels
@@ -35,50 +37,46 @@ namespace DeviceModule.ViewModels
         private void LoadMockData()
         {
             var productionLine1 = new ProductionLineModel { Id = "PL001", Name = "产线1" };
-            productionLine1.Devices.Add(new DeviceModel
+            
+            var device1 = new DeviceModel
             {
                 Id = "DEV001",
                 Name = "PLC-1",
-                ProtocolType = ProtocolType.ModbusTcp,
-                IpAddress = "192.168.1.100",
-                Port = 502,
-                SlaveId = 1,
                 Status = DeviceStatus.Online
-            });
-            productionLine1.Devices.Add(new DeviceModel
+            };
+            device1.SetConfig(new ModbusTCPModel { IpAddress = "192.168.1.100", Port = 502, SlaveId = 1 });
+            productionLine1.Devices.Add(device1);
+
+            var device2 = new DeviceModel
             {
                 Id = "DEV002",
                 Name = "PLC-2",
-                ProtocolType = ProtocolType.ModbusTcp,
-                IpAddress = "192.168.1.101",
-                Port = 502,
-                SlaveId = 1,
                 Status = DeviceStatus.Online
-            });
+            };
+            device2.SetConfig(new ModbusTCPModel { IpAddress = "192.168.1.101", Port = 502, SlaveId = 1 });
+            productionLine1.Devices.Add(device2);
 
             var productionLine2 = new ProductionLineModel { Id = "PL002", Name = "产线2" };
-            productionLine2.Devices.Add(new DeviceModel
+            
+            var device3 = new DeviceModel
             {
                 Id = "DEV003",
                 Name = "S7-1200",
-                ProtocolType = ProtocolType.S7,
-                IpAddress = "192.168.1.102",
-                S7Rack = 0,
-                S7Slot = 2,
                 Status = DeviceStatus.Offline
-            });
+            };
+            device3.SetConfig(new S7Model { IpAddress = "192.168.1.102", Rack = 0, Slot = 2 });
+            productionLine2.Devices.Add(device3);
 
             var ungrouped = new ProductionLineModel { Id = "PL003", Name = "未分组设备" };
-            ungrouped.Devices.Add(new DeviceModel
+            
+            var device4 = new DeviceModel
             {
                 Id = "DEV004",
                 Name = "Modbus设备-1",
-                ProtocolType = ProtocolType.ModbusRtu,
-                SerialPortName = "COM3",
-                BaudRate = 9600,
-                SlaveId = 1,
                 Status = DeviceStatus.NotConfigured
-            });
+            };
+            device4.SetConfig(new ModbusRTUModel { SerialPortName = "COM3", BaudRate = 9600, SlaveId = 1 });
+            ungrouped.Devices.Add(device4);
 
             ProductionLines.Add(productionLine1);
             ProductionLines.Add(productionLine2);
@@ -161,8 +159,8 @@ namespace DeviceModule.ViewModels
                 {
                     Name = "新命令",
                     DeviceId = device.Id,
-                    CommandType = CommandType.ModbusRead,
-                    FunctionCode = ModbusFunctionCode.ReadHoldingRegisters
+                    CommandType = CommandType.Read,
+                    OperationCode = 0x03 // ReadHoldingRegisters
                 };
                 device.Commands.Add(newCommand);
             }

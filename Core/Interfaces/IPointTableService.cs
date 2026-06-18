@@ -4,24 +4,24 @@ namespace Core.Interfaces
 {
     public interface IPointTableService
     {
-        DevicePoint<float> Temp1 { get; }
-        DevicePoint<float> Humidity1 { get; }
-        DevicePoint<float> Temp2 { get; }
-        DevicePoint<float> Humidity2 { get; }
-        DevicePoint<bool> WaterSensor1 { get; }
-        DevicePoint<bool> WaterSensor2 { get; }
-        DevicePoint<bool> Fuse1 { get; }
-        DevicePoint<bool> Fuse2 { get; }
-        DevicePoint<bool> Fuse3 { get; }
-        DevicePoint<bool> AirConditioner { get; }
-        DevicePoint<bool> Dehumidifier1 { get; }
-        DevicePoint<bool> Dehumidifier2 { get; }
-        DevicePoint<bool> Dehumidifier3 { get; }
-        DevicePoint<float> LiquidTemperature { get; }
-        DevicePoint<float> LiquidSetCoolTemp { get; }
-        DevicePoint<float> LiquidSetHeatTemp { get; }
-        DevicePoint<bool> FireSystemState { get; }
-        DevicePoint<bool> SmokeAlarm { get; }
+        DataPoint Temp1 { get; }
+        DataPoint Humidity1 { get; }
+        DataPoint Temp2 { get; }
+        DataPoint Humidity2 { get; }
+        DataPoint WaterSensor1 { get; }
+        DataPoint WaterSensor2 { get; }
+        DataPoint Fuse1 { get; }
+        DataPoint Fuse2 { get; }
+        DataPoint Fuse3 { get; }
+        DataPoint AirConditioner { get; }
+        DataPoint Dehumidifier1 { get; }
+        DataPoint Dehumidifier2 { get; }
+        DataPoint Dehumidifier3 { get; }
+        DataPoint LiquidTemperature { get; }
+        DataPoint LiquidSetCoolTemp { get; }
+        DataPoint LiquidSetHeatTemp { get; }
+        DataPoint FireSystemState { get; }
+        DataPoint SmokeAlarm { get; }
 
         event EventHandler<ModbusReadResult> DataUpdated;
         void Update(ModbusReadResult result);

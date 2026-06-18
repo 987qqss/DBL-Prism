@@ -22,21 +22,21 @@ namespace DeviceModule.ViewModels
         [ObservableProperty]
         private string userName = string.Empty;
 
-        public DevicePoint<float> Temperature => _pointTableService.Temp1;
-        public DevicePoint<float> Humidity => _pointTableService.Humidity1;
-        public DevicePoint<bool> WISState => _pointTableService.WaterSensor1;
-        public DevicePoint<float> BatTemp => _pointTableService.LiquidTemperature;
-        public DevicePoint<float> CoolSet => _pointTableService.LiquidSetCoolTemp;
-        public DevicePoint<float> HeatSet => _pointTableService.LiquidSetHeatTemp;
-        public DevicePoint<bool> Fuse1_State => _pointTableService.Fuse1;
-        public DevicePoint<bool> Fuse2_State => _pointTableService.Fuse2;
-        public DevicePoint<bool> Fuse3_State => _pointTableService.Fuse3;
-        public DevicePoint<bool> AirCondition => _pointTableService.AirConditioner;
-        public DevicePoint<bool> FireAlram => _pointTableService.FireSystemState;
-        public DevicePoint<bool> SmokeAlarm => _pointTableService.SmokeAlarm;
-        public DevicePoint<bool> Dehumidifier1_State => _pointTableService.Dehumidifier1;
-        public DevicePoint<bool> Dehumidifier2_State => _pointTableService.Dehumidifier2;
-        public DevicePoint<bool> Dehumidifier3_State => _pointTableService.Dehumidifier3;
+        public DataPoint Temperature => _pointTableService.Temp1;
+        public DataPoint Humidity => _pointTableService.Humidity1;
+        public DataPoint WISState => _pointTableService.WaterSensor1;
+        public DataPoint BatTemp => _pointTableService.LiquidTemperature;
+        public DataPoint CoolSet => _pointTableService.LiquidSetCoolTemp;
+        public DataPoint HeatSet => _pointTableService.LiquidSetHeatTemp;
+        public DataPoint Fuse1_State => _pointTableService.Fuse1;
+        public DataPoint Fuse2_State => _pointTableService.Fuse2;
+        public DataPoint Fuse3_State => _pointTableService.Fuse3;
+        public DataPoint AirCondition => _pointTableService.AirConditioner;
+        public DataPoint FireAlram => _pointTableService.FireSystemState;
+        public DataPoint SmokeAlarm => _pointTableService.SmokeAlarm;
+        public DataPoint Dehumidifier1_State => _pointTableService.Dehumidifier1;
+        public DataPoint Dehumidifier2_State => _pointTableService.Dehumidifier2;
+        public DataPoint Dehumidifier3_State => _pointTableService.Dehumidifier3;
 
         public DeviceStateViewModel(IModbusCommunicationService communicationService,
             IPointTableService pointTableService,
@@ -73,8 +73,7 @@ namespace DeviceModule.ViewModels
                     ushort address = (ushort)(result.StartAddress + i);
                     if (pointMap.TryGetValue((result.SlaveId, address, result.Function), out var point))
                     {
-                        if (point is DevicePoint<bool> boolPoint)
-                            boolPoint.Value = result.CoilValues[i];
+                        point.UpdateValue(result.CoilValues[i]);
                     }
                 }
             }
@@ -85,8 +84,7 @@ namespace DeviceModule.ViewModels
                     ushort address = (ushort)(result.StartAddress + i);
                     if (pointMap.TryGetValue((result.SlaveId, address, result.Function), out var point))
                     {
-                        if (point is DevicePoint<float> floatPoint)
-                            floatPoint.Value = result.RegisterValues[i] / 10f;
+                        point.UpdateValue(result.RegisterValues[i] / 10f);
                     }
                 }
             }
@@ -115,9 +113,9 @@ namespace DeviceModule.ViewModels
             IsPolling = false;
         }
 
-        private Dictionary<(byte, ushort, ModbusFunctionCode), object> BuildPointLookup()
+        private Dictionary<(byte, ushort, ModbusFunctionCode), DataPoint> BuildPointLookup()
         {
-            var dict = new Dictionary<(byte, ushort, ModbusFunctionCode), object>();
+            var dict = new Dictionary<(byte, ushort, ModbusFunctionCode), DataPoint>();
             AddPoint(dict, _pointTableService.Temp1, ModbusFunctionCode.ReadInputRegisters);
             AddPoint(dict, _pointTableService.Humidity1, ModbusFunctionCode.ReadInputRegisters);
             AddPoint(dict, _pointTableService.WaterSensor1, ModbusFunctionCode.ReadCoils);
@@ -137,9 +135,12 @@ namespace DeviceModule.ViewModels
             return dict;
         }
 
-        private void AddPoint<T>(Dictionary<(byte, ushort, ModbusFunctionCode), object> dict, DevicePoint<T> point, ModbusFunctionCode func)
+        private void AddPoint(Dictionary<(byte, ushort, ModbusFunctionCode), DataPoint> dict, DataPoint point, ModbusFunctionCode func)
         {
-            dict[(point.SlaveId, point.Address, func)] = point;
+            if (point is ModbusDataPoint modbusPoint)
+            {
+                dict[(modbusPoint.SlaveId, modbusPoint.RegisterAddress, func)] = point;
+            }
         }
     }
 }

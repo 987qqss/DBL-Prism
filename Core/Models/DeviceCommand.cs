@@ -4,57 +4,50 @@ namespace Core.Models
 {
     public class DeviceCommand
     {
-        //设备编号
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string DeviceId { get; set; } = string.Empty;//设备ID
         public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;//设备描述
-        public CommandType CommandType { get; set; }//命令类型
+        public string Description { get; set; } = string.Empty;
         
-        //Modbus配置
-        public byte SlaveId { get; set; } = 1;
-        public ushort StartAddress { get; set; } = 0;
-        public ushort Quantity { get; set; } = 1;
-        public ModbusFunctionCode FunctionCode { get; set; }
+        public string DeviceId { get; set; } = string.Empty;
         
-        //S7配置
-        public int S7DbNumber { get; set; } = 1;
-        public int S7StartOffset { get; set; } = 0;
-        public int S7Length { get; set; } = 4;
-        public S7DataType S7DataType { get; set; } = S7DataType.Int;
+        public string? DataPointId { get; set; }
         
-        //TCP配置
-        public string TcpCommand { get; set; } = string.Empty;
-        public string TcpResponsePattern { get; set; } = string.Empty;
+        public CommandType CommandType { get; set; } = CommandType.Read;
         
-        public DataFormat DataFormat { get; set; } = DataFormat.UInt16;
+        public byte OperationCode { get; set; } = 0x00;
+        
+        public ushort Address { get; set; } = 0;
+        public ushort Length { get; set; } = 1;
+        
+        public object? WriteValue { get; set; }
+        
+        public DataFormat DataFormat { get; set; } = DataFormat.Int16;
         public float Scale { get; set; } = 1.0f;
         public float Offset { get; set; } = 0.0f;
         public string Unit { get; set; } = string.Empty;
+        
+        public string RequestData { get; set; } = string.Empty;
         
         public bool IsSystemCommand { get; set; } = false;
         
         public ObservableCollection<CommandParameter> Parameters { get; } = new();
     }
 
-    public enum CommandType
+    public class CommandExecutionResult
     {
-        ModbusRead,
-        ModbusWrite,
-        S7Read,
-        S7Write,
-        TcpRequest,
-        Custom
+        public bool Success { get; set; }
+        public object? Data { get; set; }
+        public string? ErrorMessage { get; set; }
+        public string? FormattedResult { get; set; }
+        public long ExecutionTime { get; set; }
     }
 
-    public enum S7DataType
+    public enum CommandType
     {
-        Bit,
-        Byte,
-        Int,
-        DInt,
-        Real,
-        String
+        Read,
+        Write,
+        ReadWrite,
+        Custom
     }
 
     public enum DataFormat
@@ -66,6 +59,14 @@ namespace Core.Models
         Float,
         Double,
         Bool,
-        String
+        String,
+        ByteArray
+    }
+
+    public class CommandParameter
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Value { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
     }
 }

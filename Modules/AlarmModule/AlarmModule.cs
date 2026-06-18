@@ -1,5 +1,3 @@
-using Prism.Ioc;
-using Prism.Modularity;
 using AlarmModule.Views;
 using AlarmModule.ViewModels;
 
