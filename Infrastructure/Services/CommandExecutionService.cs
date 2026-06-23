@@ -199,7 +199,7 @@ namespace Infrastructure.Services
                     {
                         var config = device.Config as ModbusRTUModel ?? new ModbusRTUModel();
                         ((ModbusRtuService)service).Connect(config.SerialPortName, config.BaudRate, 
-                            ParseParity(config.Parity), config.DataBits, ParseStopBits(config.StopBits));
+                            MapParity(config.Parity), config.DataBits, MapStopBits(config.StopBits));
                     }
                     else
                     {
@@ -228,15 +228,23 @@ namespace Infrastructure.Services
             }
         }
 
-        private System.IO.Ports.Parity ParseParity(string parity)
+        private static System.IO.Ports.Parity MapParity(SerialParity parity) => parity switch
         {
-            return Enum.TryParse<System.IO.Ports.Parity>(parity, out var result) ? result : System.IO.Ports.Parity.None;
-        }
+            SerialParity.None => System.IO.Ports.Parity.None,
+            SerialParity.Odd => System.IO.Ports.Parity.Odd,
+            SerialParity.Even => System.IO.Ports.Parity.Even,
+            SerialParity.Mark => System.IO.Ports.Parity.Mark,
+            SerialParity.Space => System.IO.Ports.Parity.Space,
+            _ => System.IO.Ports.Parity.None
+        };
 
-        private System.IO.Ports.StopBits ParseStopBits(string stopBits)
+        private static System.IO.Ports.StopBits MapStopBits(SerialStopBits stopBits) => stopBits switch
         {
-            return Enum.TryParse<System.IO.Ports.StopBits>(stopBits, out var result) ? result : System.IO.Ports.StopBits.One;
-        }
+            SerialStopBits.One => System.IO.Ports.StopBits.One,
+            SerialStopBits.OnePointFive => System.IO.Ports.StopBits.OnePointFive,
+            SerialStopBits.Two => System.IO.Ports.StopBits.Two,
+            _ => System.IO.Ports.StopBits.One
+        };
 
         private string FormatModbusResult(object? result, DeviceCommand command)
         {

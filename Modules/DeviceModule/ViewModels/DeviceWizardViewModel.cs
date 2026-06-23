@@ -463,8 +463,8 @@ namespace DeviceModule.ViewModels
                     rtuConfig.SerialPortName = SerialPortName;
                     rtuConfig.BaudRate = BaudRate;
                     rtuConfig.DataBits = DataBits;
-                    rtuConfig.Parity = Parity;
-                    rtuConfig.StopBits = StopBits;
+                    rtuConfig.Parity = Enum.TryParse<SerialParity>(Parity, out var p) ? p : SerialParity.None;
+                    rtuConfig.StopBits = Enum.TryParse<SerialStopBits>(StopBits, out var s) ? s : SerialStopBits.One;
                     rtuConfig.SlaveId = SlaveId;
                     rtuConfig.Timeout = Timeout;
                     rtuConfig.RetryCount = RetryCount;

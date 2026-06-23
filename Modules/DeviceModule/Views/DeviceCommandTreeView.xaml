@@ -1,0 +1,197 @@
+<UserControl x:Class="DeviceModule.Views.DeviceCommandTreeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:vm="clr-namespace:DeviceModule.ViewModels"
+             xmlns:cm="clr-namespace:Core.Models;assembly=Core"
+             xmlns:ci="clr-namespace:Core.Interfaces;assembly=Core"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             prism:ViewModelLocator.AutoWireViewModel="True"
+             d:DataContext="{d:DesignInstance Type=vm:DeviceCommandTreeViewModel, IsDesignTimeCreatable=False}"
+             mc:Ignorable="d"
+             Background="Transparent">
+
+    <!-- 纯树形结构：产线 → 设备 → 命令（标题和版本号由 Shell SidebarView 提供） -->
+    <TreeView x:Name="CommandTree"
+              ItemsSource="{Binding ProductionLines}"
+              Background="Transparent"
+              BorderThickness="0"
+              Margin="4,0">
+        <TreeView.Resources>
+            <!-- ========== 产线节点模板 ========== -->
+            <HierarchicalDataTemplate DataType="{x:Type cm:ProductionLineModel}" ItemsSource="{Binding Devices}">
+                <StackPanel Orientation="Horizontal" Height="32" VerticalAlignment="Center"
+                            Background="Transparent">
+                    <StackPanel.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="📁 添加设备" FontSize="12"
+                                      Command="{Binding DataContext.AddDeviceToLineCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            <Separator />
+                            <MenuItem Header="🗑 删除产线" FontSize="12" Foreground="#EF4444"
+                                      Command="{Binding DataContext.DeleteProductionLineCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                        </ContextMenu>
+                    </StackPanel.ContextMenu>
+                    <TextBlock Text="📁" FontSize="14" Margin="0,0,6,0" />
+                    <TextBlock Text="{Binding Name}"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               FontSize="13"
+                               FontWeight="SemiBold" />
+                </StackPanel>
+            </HierarchicalDataTemplate>
+
+            <!-- ========== 设备节点模板 ========== -->
+            <HierarchicalDataTemplate DataType="{x:Type cm:DeviceModel}" ItemsSource="{Binding Commands}">
+                <StackPanel Orientation="Horizontal" Height="30" VerticalAlignment="Center"
+                            Background="Transparent">
+                    <StackPanel.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="✏ 修改设备" FontSize="12"
+                                      Command="{Binding DataContext.EditDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            <Separator />
+                            <MenuItem Header="🔌 连接设备" FontSize="12"
+                                      Command="{Binding DataContext.ConnectDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            <MenuItem Header="🔗 断开设备" FontSize="12"
+                                      Command="{Binding DataContext.DisconnectDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            <Separator />
+                            <MenuItem Header="📄 添加命令" FontSize="12"
+                                      Command="{Binding DataContext.AddCommandToDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            <Separator />
+                            <MenuItem Header="🗑 删除设备" FontSize="12" Foreground="#EF4444"
+                                      Command="{Binding DataContext.DeleteDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                        </ContextMenu>
+                    </StackPanel.ContextMenu>
+                    <Ellipse Width="8" Height="8" Margin="0,0,8,0">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <Setter Property="Fill" Value="#6B7280" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static ci:DeviceStatus.Online}">
+                                        <Setter Property="Fill" Value="#22C55E" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static ci:DeviceStatus.Offline}">
+                                        <Setter Property="Fill" Value="#EF4444" />
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static ci:DeviceStatus.NotConfigured}">
+                                        <Setter Property="Fill" Value="#F59E0B" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                    <TextBlock Text="{Binding Name}"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               FontSize="13" />
+                </StackPanel>
+            </HierarchicalDataTemplate>
+
+            <!-- ========== 命令节点模板（叶子节点） ========== -->
+            <DataTemplate DataType="{x:Type cm:DeviceCommand}">
+                <StackPanel Orientation="Horizontal" Height="28" VerticalAlignment="Center" Cursor="Hand"
+                            Background="Transparent">
+                    <StackPanel.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="▶ 执行命令" FontSize="12"
+                                      Command="{Binding DataContext.ExecuteCommandCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                            <Separator />
+                            <MenuItem Header="🗑 删除命令" FontSize="12" Foreground="#EF4444"
+                                      Command="{Binding DataContext.DeleteCommandCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                        </ContextMenu>
+                    </StackPanel.ContextMenu>
+                    <TextBlock Text="▶"
+                               FontSize="10"
+                               Foreground="{StaticResource AccentCyanBrush}"
+                               Margin="8,0,6,0"
+                               VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding Name}"
+                               Foreground="{StaticResource TextSecondaryBrush}"
+                               FontSize="12"
+                               VerticalAlignment="Center" />
+                </StackPanel>
+            </DataTemplate>
+        </TreeView.Resources>
+
+        <!-- TreeViewItem 样式：自定义折叠箭头和选中高亮 -->
+        <TreeView.ItemContainerStyle>
+            <Style TargetType="TreeViewItem">
+                <Setter Property="IsExpanded" Value="True" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="Padding" Value="4,2" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="TreeViewItem">
+                            <StackPanel>
+                                <Border x:Name="Bd"
+                                        Background="{TemplateBinding Background}"
+                                        Padding="{TemplateBinding Padding}"
+                                        Margin="2,1"
+                                        CornerRadius="4">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="16" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <ToggleButton x:Name="Expander"
+                                                      Grid.Column="0"
+                                                      ClickMode="Press"
+                                                      IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
+                                                      Width="16" Height="16"
+                                                      Margin="0,0,2,0">
+                                            <ToggleButton.Template>
+                                                <ControlTemplate TargetType="ToggleButton">
+                                                    <Border Background="Transparent" Width="16" Height="16">
+                                                        <TextBlock x:Name="Arrow"
+                                                                   Text="▶"
+                                                                   FontSize="8"
+                                                                   Foreground="{StaticResource TextSecondaryBrush}"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center" />
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsChecked" Value="True">
+                                                            <Setter TargetName="Arrow" Property="Text" Value="▼" />
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </ToggleButton.Template>
+                                        </ToggleButton>
+                                        <ContentPresenter Grid.Column="1"
+                                                          ContentSource="Header"
+                                                          HorizontalAlignment="Stretch"
+                                                          VerticalAlignment="Center" />
+                                    </Grid>
+                                </Border>
+                                <ItemsPresenter x:Name="ItemsHost" Margin="20,0,0,0" Visibility="Collapsed" />
+                            </StackPanel>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsExpanded" Value="True">
+                                    <Setter TargetName="ItemsHost" Property="Visibility" Value="Visible" />
+                                </Trigger>
+                                <Trigger Property="HasItems" Value="False">
+                                    <Setter TargetName="Expander" Property="Visibility" Value="Hidden" />
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#2200D4FF" />
+                                </Trigger>
+                                <Trigger SourceName="Bd" Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="Bd" Property="Background" Value="#22FFFFFF" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </TreeView.ItemContainerStyle>
+    </TreeView>
+</UserControl>

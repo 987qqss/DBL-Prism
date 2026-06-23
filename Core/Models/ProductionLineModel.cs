@@ -1,12 +1,21 @@
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 
 namespace Core.Models
 {
-    //产线模型
-    public class ProductionLineModel
+    /// <summary>产线模型 —— 设备分组的顶层容器</summary>
+    public partial class ProductionLineModel : ObservableObject
     {
+        private string _name = string.Empty;
+
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string Name { get; set; } = string.Empty;
+
+        public string Name
+        {
+            get => _name;
+            set => SetProperty(ref _name, value);
+        }
+
         public string Description { get; set; } = string.Empty;
         public ObservableCollection<DeviceModel> Devices { get; } = new();
         public DateTime CreatedTime { get; set; } = DateTime.Now;

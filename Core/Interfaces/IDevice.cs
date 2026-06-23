@@ -42,4 +42,20 @@ namespace Core.Interfaces
         NotConfigured,
         Error
     }
+
+    public enum SerialParity
+    {
+        None,
+        Odd,
+        Even,
+        Mark,
+        Space
+    }
+
+    public enum SerialStopBits
+    {
+        One,
+        OnePointFive,
+        Two
+    }
 }

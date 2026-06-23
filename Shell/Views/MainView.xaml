@@ -31,7 +31,21 @@
     </WindowChrome.WindowChrome>
 
     <Border BorderBrush="{StaticResource BorderBrushDark}" BorderThickness="1">
+        
         <Grid>
+            <!--<Grid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="复制" Command="{Binding CopyCommand}" InputGestureText="Ctrl+C"/>
+                    <MenuItem Header="粘贴" Command="{Binding PasteCommand}" />
+                    <Separator />
+                    --><!-- 分割线 --><!--
+                    <MenuItem Header="属性">
+                        <MenuItem Header="查看" />
+                        <MenuItem Header="修改" />
+                    </MenuItem>
+                </ContextMenu>
+            </Grid.ContextMenu>-->
+            
             <Grid.RowDefinitions>
                 <RowDefinition Height="32" />   <!-- Row 0: 标题栏 -->
                 <RowDefinition Height="36" />   <!-- Row 1: 菜单栏（缩小高度） -->
@@ -41,7 +55,9 @@
 
             <!-- ============ Row 0: 标题栏 ============ -->
             <Border Grid.Row="0" Background="{StaticResource TitleBarBackground}">
+                
                 <Grid Height="32">
+                    
                     <!-- 系统名称 -->
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0,0,0">
                         <materialDesign:PackIcon Kind="Flash"
@@ -53,7 +69,8 @@
                                    FontSize="12"
                                    FontWeight="Bold"
                                    Foreground="{StaticResource AccentCyanBrush}"
-                                   VerticalAlignment="Center" />
+                                   VerticalAlignment="Center" 
+                                   />
                     </StackPanel>
 
                     <!-- 窗口控制按钮 -->

@@ -44,7 +44,6 @@ namespace Shell
             containerRegistry.RegisterForNavigation<CommandRunView, CommandRunViewModel>();
             containerRegistry.RegisterForNavigation<LogView>();
             containerRegistry.RegisterSingleton<MainViewModel>();
-            containerRegistry.RegisterSingleton<SidebarViewModel>();
             containerRegistry.RegisterSingleton<MenuBarViewModel>();
         }
 
