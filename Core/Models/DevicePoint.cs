@@ -3,6 +3,7 @@ using System;
 
 namespace Core.Models
 {
+   
     public partial class DataPoint : ObservableObject
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
