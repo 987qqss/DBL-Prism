@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Core.Interfaces;
 using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Core.Models
@@ -54,6 +55,7 @@ namespace Core.Models
         public ObservableCollection<DeviceCommand> Commands { get; } = new();
 
         /// <summary>设备下的数据点列表（运行时监控）</summary>
+        [JsonIgnore]
         public ObservableCollection<DataPoint> DataPoints { get; } = new();
 
         public DateTime CreatedTime { get; set; } = DateTime.Now;

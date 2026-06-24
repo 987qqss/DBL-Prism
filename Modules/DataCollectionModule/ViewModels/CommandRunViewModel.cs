@@ -1,7 +1,9 @@
 
+using Prism.Commands;
+using Prism.Mvvm;
 using System.Collections.ObjectModel;
 
-namespace Shell.ViewModels
+namespace StateMachineModule.ViewModels
 {
     public class CommandRecord
     {

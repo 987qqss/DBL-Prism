@@ -14,7 +14,7 @@ namespace Shell.Models
         public string IconKind { get; set; } = string.Empty;
 
         /// <summary>点击触发的命令</summary>
-        public DelegateCommand Command { get; set; }
+        public DelegateCommand Command { get; set; } = null!;
 
         /// <summary>快捷键提示文本</summary>
         public string InputGestureText { get; set; } = string.Empty;
@@ -23,6 +23,6 @@ namespace Shell.Models
         public bool IsSeparator { get; set; }
 
         /// <summary>子项（用于多级菜单，可选）</summary>
-        public System.Collections.Generic.List<MenuItemModel> Children { get; set; }
+        public System.Collections.Generic.List<MenuItemModel> Children { get; set; } = new();
     }
 }

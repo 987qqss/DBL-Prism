@@ -1,4 +1,5 @@
 using Core.Interfaces;
+using DeviceModule.Services;
 using Infrastructure.Communication;
 using Infrastructure.Services;
 using Prism.DryIoc;
@@ -25,7 +26,7 @@ namespace Shell
             moduleCatalog.AddModule<DeviceModule.DeviceModule>();
             moduleCatalog.AddModule<AlarmModule.AlarmModule>();
             moduleCatalog.AddModule<OperationModule.OperationModule>();
-            moduleCatalog.AddModule<DataCollectionModule.DataCollectionModule>();
+            moduleCatalog.AddModule<StateMachineModule.StateMachineModule>();
             moduleCatalog.AddModule<ReportModule.ReportModule>();
             moduleCatalog.AddModule<UserModule.UserModule>();
             moduleCatalog.AddModule<SettingsModule.SettingsModule>();
@@ -39,7 +40,10 @@ namespace Shell
             containerRegistry.RegisterSingleton<IModbusService, ModbusTcpService>();
             containerRegistry.RegisterSingleton<IModbusCommunicationService, ModbusCommunicationService>();
 
-            //containerRegistry.RegisterForNavigation<HomeView,HomeViewModel>();
+            // 配置服务（必须在 CreateShell 前注册，MenuBarViewModel 依赖它）
+            containerRegistry.RegisterSingleton<IConfigurationService, ConfigurationService>();
+
+            containerRegistry.RegisterForNavigation<HomeView,HomeViewModel>();
             //containerRegistry.RegisterForNavigation<CommandRunView, CommandRunViewModel>();
             //containerRegistry.RegisterForNavigation<LogView>();
             containerRegistry.RegisterSingleton<MainViewModel>();

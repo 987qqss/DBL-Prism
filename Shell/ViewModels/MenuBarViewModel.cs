@@ -1,3 +1,8 @@
+using Core.Interfaces;
+using Microsoft.Win32;
+using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Navigation.Regions;
 using Shell.Models;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -7,6 +12,7 @@ namespace Shell.ViewModels
     public class MenuBarViewModel : BindableBase
     {
         private readonly IRegionManager _regionManager;
+        private readonly IConfigurationService _configService;
         private string _statusMessage = "系统就绪";
         private bool _isSidebarOpen = false;
 
@@ -59,9 +65,10 @@ namespace Shell.ViewModels
         public DelegateCommand LogoutCommand { get; }
         public DelegateCommand ChangePasswordCommand { get; }
 
-        public MenuBarViewModel(IRegionManager regionManager)
+        public MenuBarViewModel(IRegionManager regionManager, IConfigurationService configService)
         {
             _regionManager = regionManager;
+            _configService = configService;
 
             SettingsCommand = new DelegateCommand(() => StatusMessage = "打开系统设置...");
             AboutCommand = new DelegateCommand(ShowAbout);
@@ -72,8 +79,8 @@ namespace Shell.ViewModels
             NewProjectCommand = new DelegateCommand(() => StatusMessage = "新建项目");
             OpenProjectCommand = new DelegateCommand(() => StatusMessage = "打开项目");
             SaveProjectCommand = new DelegateCommand(() => StatusMessage = "保存项目");
-            ImportConfigCommand = new DelegateCommand(() => StatusMessage = "导入配置");
-            ExportConfigCommand = new DelegateCommand(() => StatusMessage = "导出配置");
+            ImportConfigCommand = new DelegateCommand(ImportConfig);
+            ExportConfigCommand = new DelegateCommand(ExportConfig);
             ExitCommand = new DelegateCommand(() => Application.Current?.Shutdown());
 
             UndoCommand = new DelegateCommand(() => StatusMessage = "撤销");
@@ -175,6 +182,56 @@ namespace Shell.ViewModels
                 "关于",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
+        }
+
+        /// <summary>导出配置：将设备树序列化为 JSON 文件</summary>
+        private void ExportConfig()
+        {
+            var dialog = new SaveFileDialog
+            {
+                Title = "导出设备树配置",
+                Filter = "JSON 文件 (*.json)|*.json|所有文件 (*.*)|*.*",
+                FileName = $"DeviceConfig_{DateTime.Now:yyyy-MM-dd_HHmmss}.json",
+                DefaultExt = ".json",
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                _configService.ExportConfig(dialog.FileName);
+                StatusMessage = $"配置已导出 → {System.IO.Path.GetFileName(dialog.FileName)}";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "导出配置失败";
+                MessageBox.Show($"导出失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>导入配置：从 JSON 文件反序列化设备树</summary>
+        private void ImportConfig()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "导入设备树配置",
+                Filter = "JSON 文件 (*.json)|*.json|所有文件 (*.*)|*.*",
+                DefaultExt = ".json",
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                _configService.ImportConfig(dialog.FileName);
+                StatusMessage = $"配置已导入 → {System.IO.Path.GetFileName(dialog.FileName)}";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "导入配置失败";
+                MessageBox.Show($"导入失败: {ex.Message}\n\n请确认文件格式正确", "错误",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }

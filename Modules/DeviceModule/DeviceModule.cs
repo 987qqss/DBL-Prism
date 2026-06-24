@@ -1,3 +1,4 @@
+using Core.Interfaces;
 using Prism.Ioc;
 using Prism.Modularity;
 using Prism.Navigation.Regions;
