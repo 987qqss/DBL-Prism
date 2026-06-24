@@ -1,7 +1,8 @@
-<UserControl x:Class="Shell.Views.Controls.HomeView"
+<UserControl x:Class="Shell.Views.HomeView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:views="clr-namespace:Shell.Views.Controls"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True"
              Background="Transparent">
 
     <Grid Margin="8">
@@ -17,11 +18,17 @@
                 <RowDefinition Height="280" />
             </Grid.RowDefinitions>
 
-            <views:CommandRunView Grid.Row="0" Margin="0,0,0,8" />
-            <views:LogView Grid.Row="1" />
+            <ContentControl Grid.Row="0"
+                prism:RegionManager.RegionName="CommandRunRegion"
+                Margin="0" />
+            <ContentControl Grid.Row="1"
+                prism:RegionManager.RegionName="LogRegion"
+                Margin="0" />
         </Grid>
 
-        <!-- 右侧：设备状态 + 参数设置 -->
-        <views:StatusParamView Grid.Column="1" />
+        <!-- 右侧：设备状态 + 参数设置区域 -->
+        <ContentControl Grid.Column="1"
+            prism:RegionManager.RegionName="StatusParamRegion"
+            Margin="0" />
     </Grid>
 </UserControl>

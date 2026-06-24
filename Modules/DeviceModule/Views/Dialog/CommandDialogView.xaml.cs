@@ -9,6 +9,7 @@ namespace DeviceModule.Views
         public CommandDialogView()
         {
             InitializeComponent();
+            this.DataContext = new CommandDialogViewModel();
             Loaded += OnLoaded;
         }
 

@@ -1,4 +1,4 @@
-namespace Shell.Views.Controls
+namespace Shell.Views
 {
     public partial class CommandRunView
     {

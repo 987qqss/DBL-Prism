@@ -1,0 +1,83 @@
+<UserControl x:Class="DeviceModule.Views.DeviceDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"
+             Background="White"
+             Width="400"
+             Padding="16">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="{Binding Title}"
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Foreground="{StaticResource TextPrimaryBrush}"
+                   Margin="0,0,0,16" />
+
+        <StackPanel Grid.Row="1" Margin="0,0,0,12">
+            <TextBlock Text="设备 ID *"
+                       FontSize="12"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,0,0,4" />
+            <TextBox Text="{Binding Id, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="8,6"
+                     FontSize="13" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Margin="0,0,0,12">
+            <TextBlock Text="设备名称 *"
+                       FontSize="12"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,0,0,4" />
+            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="8,6"
+                     FontSize="13" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Margin="0,0,0,12">
+            <TextBlock Text="协议类型"
+                       FontSize="12"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,0,0,4" />
+            <ComboBox ItemsSource="{Binding ProtocolTypes}"
+                      SelectedItem="{Binding ProtocolType}"
+                      Padding="8,6"
+                      FontSize="13" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="4"
+                   Text="带 * 的字段为必填项"
+                   FontSize="11"
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,0,12" />
+
+        <StackPanel Grid.Row="5"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,8,0,0">
+            <Button Content="取消"
+                    Command="{Binding CancelCommand}"
+                    Width="80"
+                    Height="32"
+                    Margin="0,0,8,0"
+                    Background="#E5E7EB"
+                    Foreground="#374151" />
+            <Button Content="确定"
+                    Command="{Binding ConfirmCommand}"
+                    Width="80"
+                    Height="32"
+                    Background="#3B82F6"
+                    Foreground="White" />
+        </StackPanel>
+    </Grid>
+</UserControl>

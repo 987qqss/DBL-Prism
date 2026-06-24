@@ -7,7 +7,6 @@
              xmlns:ci="clr-namespace:Core.Interfaces;assembly=Core"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             prism:ViewModelLocator.AutoWireViewModel="True"
              d:DataContext="{d:DesignInstance Type=vm:DeviceCommandTreeViewModel, IsDesignTimeCreatable=False}"
              mc:Ignorable="d"
              Background="Transparent">
@@ -51,6 +50,10 @@
                         <ContextMenu>
                             <MenuItem Header="✏ 修改设备" FontSize="12"
                                       Command="{Binding DataContext.EditDevice, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
+                            <Separator />
+                            <MenuItem Header="⚙ 协议配置" FontSize="12"
+                                      Command="{Binding DataContext.ConfigureProtocol, Source={x:Reference CommandTree}}"
                                       CommandParameter="{Binding}" />
                             <Separator />
                             <MenuItem Header="🔌 连接设备" FontSize="12"

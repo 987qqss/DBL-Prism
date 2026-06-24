@@ -12,7 +12,7 @@
 
         <Border Grid.Row="0" Background="#1E1E2E" CornerRadius="8" Padding="16">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <materialDesign:PackIcon Kind="Cog" Width="20" Height="20" Foreground="#3B82F6" Margin="0,0,8,0" />
+                <TextBlock Text="⚙" FontSize="20" Foreground="#3B82F6" Margin="0,0,8,0" VerticalAlignment="Center" />
                 <TextBlock Text="配置设备信息" FontSize="14" FontWeight="Bold" Foreground="#E2E8F0" />
             </StackPanel>
         </Border>

@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.13.35931.197 d17.13
+# Visual Studio Version 18
+VisualStudioVersion = 18.6.11822.322 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", "{A1B2C3D4-1234-5678-90AB-CDEF01234567}"
 EndProject
@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AlarmModule", "Modules\Alar
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OperationModule", "Modules\OperationModule\OperationModule.csproj", "{D245A77C-4FEF-46E8-90DD-8A49AA18737C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataCollectionModule", "Modules\DataCollectionModule\DataCollectionModule.csproj", "{B3208CAF-3B16-4F23-89F1-8F3D6B52F7F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StateMachineModule", "Modules\DataCollectionModule\StateMachineModule.csproj", "{B3208CAF-3B16-4F23-89F1-8F3D6B52F7F1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReportModule", "Modules\ReportModule\ReportModule.csproj", "{B68B9F6A-69DD-47CF-BAB7-9CFD95936F00}"
 EndProject
@@ -89,5 +89,8 @@ Global
 		{5C0723A1-CB49-44DD-B1ED-B5EC43532CA7} = {C866C035-D87F-45FE-A3CD-B37A4CE7B66A}
 		{95CF8C29-AB25-4D76-B1A8-4DBFBD496E89} = {C866C035-D87F-45FE-A3CD-B37A4CE7B66A}
 		{4E581C33-EC57-41AE-845A-7E0AA23F2B63} = {C866C035-D87F-45FE-A3CD-B37A4CE7B66A}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {577959D1-8C4C-4384-A274-2FB5CC62CDD1}
 	EndGlobalSection
 EndGlobal

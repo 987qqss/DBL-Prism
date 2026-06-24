@@ -9,6 +9,7 @@ namespace DeviceModule.Views
         public DeviceDialogView()
         {
             InitializeComponent();
+            this.DataContext = new DeviceDialogViewModel();
             Loaded += OnLoaded;
         }
 

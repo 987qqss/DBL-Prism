@@ -12,6 +12,7 @@ namespace DeviceModule.Views
         public ProductionLineDialogView()
         {
             InitializeComponent();
+            this.DataContext = new ProductionLineDialogViewModel();
 
             // 订阅视图模型的 CloseAction 事件来关闭窗口
             Loaded += OnLoaded;

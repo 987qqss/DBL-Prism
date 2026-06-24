@@ -8,7 +8,6 @@ using Prism.Modularity;
 using Prism.Navigation.Regions;
 using Shell.ViewModels;
 using Shell.Views;
-using Shell.Views.Controls;
 using System.Windows;
 
 namespace Shell
@@ -22,6 +21,7 @@ namespace Shell
 
         protected override void ConfigureModuleCatalog(IModuleCatalog moduleCatalog)
         {
+            moduleCatalog.AddModule<LogModule.LogModule>();
             moduleCatalog.AddModule<DeviceModule.DeviceModule>();
             moduleCatalog.AddModule<AlarmModule.AlarmModule>();
             moduleCatalog.AddModule<OperationModule.OperationModule>();
@@ -29,7 +29,6 @@ namespace Shell
             moduleCatalog.AddModule<ReportModule.ReportModule>();
             moduleCatalog.AddModule<UserModule.UserModule>();
             moduleCatalog.AddModule<SettingsModule.SettingsModule>();
-            moduleCatalog.AddModule<LogModule.LogModule>();
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -40,9 +39,9 @@ namespace Shell
             containerRegistry.RegisterSingleton<IModbusService, ModbusTcpService>();
             containerRegistry.RegisterSingleton<IModbusCommunicationService, ModbusCommunicationService>();
 
-            containerRegistry.RegisterForNavigation<HomeView>();
-            containerRegistry.RegisterForNavigation<CommandRunView, CommandRunViewModel>();
-            containerRegistry.RegisterForNavigation<LogView>();
+            //containerRegistry.RegisterForNavigation<HomeView,HomeViewModel>();
+            //containerRegistry.RegisterForNavigation<CommandRunView, CommandRunViewModel>();
+            //containerRegistry.RegisterForNavigation<LogView>();
             containerRegistry.RegisterSingleton<MainViewModel>();
             containerRegistry.RegisterSingleton<MenuBarViewModel>();
         }

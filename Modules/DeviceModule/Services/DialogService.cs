@@ -1,14 +1,14 @@
+using Core.Interfaces;
 using Core.Models;
-using DeviceModule.ViewModels;
 using DeviceModule.Views;
+using DeviceModule.Views.Dialog.ProtocolConfig;
+using DeviceModule.ViewModels;
+using DeviceModule.ViewModels.ProtocolConfig;
 using Prism.Ioc;
 using System.Windows;
 
 namespace DeviceModule.Services
 {
-    /// <summary>
-    /// 对话框服务实现 - 使用 Prism 容器解析对话框视图和视图模型
-    /// </summary>
     public class DialogService : IDialogService
     {
         private readonly IContainerProvider _containerProvider;
@@ -18,17 +18,17 @@ namespace DeviceModule.Services
             _containerProvider = containerProvider;
         }
 
-        public bool? ShowProductionLineDialog(ref ProductionLineModel productionLine, bool isEditMode)
+        public ProductionLineModel? ShowProductionLineDialog(ProductionLineModel? model, bool isEditMode)
         {
-            var dialogView = _containerProvider.Resolve<ProductionLineDialogView>();
-            var viewModel = (ProductionLineDialogViewModel)dialogView.DataContext;
-
-            viewModel.Initialize(productionLine, isEditMode);
+            var view = _containerProvider.Resolve<ProductionLineDialogView>();
+            var viewModel = _containerProvider.Resolve<ProductionLineDialogViewModel>();
+            view.DataContext = viewModel;
+            viewModel.Initialize(model ?? new ProductionLineModel(), isEditMode);
 
             var window = new Window
             {
-                Title = isEditMode ? "编辑产线" : "新增产线",
-                Content = dialogView,
+                Title = viewModel.Title,
+                Content = view,
                 SizeToContent = SizeToContent.WidthAndHeight,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 ResizeMode = ResizeMode.NoResize,
@@ -36,27 +36,27 @@ namespace DeviceModule.Services
                 WindowStyle = WindowStyle.ToolWindow
             };
 
-            var result = window.ShowDialog();
-            
-            // 使用 GetResult() 的返回值
-            if (result == true)
+            viewModel.CloseAction = r =>
             {
-                productionLine = viewModel.GetResult();
-            }
-            
-            return result;
+                window.DialogResult = r;
+                window.Close();
+            };
+
+            var dialogResult = window.ShowDialog();
+            return dialogResult == true ? viewModel.GetResult() : null;
         }
 
-        public bool? ShowDeviceDialog(ref DeviceModel device, bool isEditMode)
+        public DeviceModel? ShowDeviceDialog(DeviceModel? device, bool isEditMode)
         {
-            var dialogView = _containerProvider.Resolve<DeviceDialogView>();
-            var viewModel = (DeviceDialogViewModel)dialogView.DataContext;
-            viewModel.Initialize(device, isEditMode);
+            var view = _containerProvider.Resolve<DeviceDialogView>();
+            var viewModel = _containerProvider.Resolve<DeviceDialogViewModel>();
+            view.DataContext = viewModel;
+            viewModel.Initialize(device ?? new DeviceModel(), isEditMode);
 
             var window = new Window
             {
-                Title = isEditMode ? "编辑设备" : "新增设备",
-                Content = dialogView,
+                Title = viewModel.Title,
+                Content = view,
                 SizeToContent = SizeToContent.WidthAndHeight,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 ResizeMode = ResizeMode.NoResize,
@@ -64,27 +64,27 @@ namespace DeviceModule.Services
                 WindowStyle = WindowStyle.ToolWindow
             };
 
-            var result = window.ShowDialog();
-            
-            // 使用 GetResult() 的返回值
-            if (result == true)
+            viewModel.CloseAction = r =>
             {
-                device = viewModel.GetResult();
-            }
-            
-            return result;
+                window.DialogResult = r;
+                window.Close();
+            };
+
+            var dialogResult = window.ShowDialog();
+            return dialogResult == true ? viewModel.GetResult() : null;
         }
 
-        public bool? ShowCommandDialog(ref DeviceCommand command, bool isEditMode)
+        public DeviceCommand? ShowCommandDialog(DeviceCommand? cmd, bool isEditMode)
         {
-            var dialogView = _containerProvider.Resolve<CommandDialogView>();
-            var viewModel = (CommandDialogViewModel)dialogView.DataContext;
-            viewModel.Initialize(command, isEditMode);
+            var view = _containerProvider.Resolve<CommandDialogView>();
+            var viewModel = _containerProvider.Resolve<CommandDialogViewModel>();
+            view.DataContext = viewModel;
+            viewModel.Initialize(cmd ?? new DeviceCommand(), isEditMode);
 
             var window = new Window
             {
-                Title = isEditMode ? "编辑命令" : "新增命令",
-                Content = dialogView,
+                Title = viewModel.Title,
+                Content = view,
                 SizeToContent = SizeToContent.WidthAndHeight,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
                 ResizeMode = ResizeMode.NoResize,
@@ -92,15 +92,65 @@ namespace DeviceModule.Services
                 WindowStyle = WindowStyle.ToolWindow
             };
 
-            var result = window.ShowDialog();
-            
-            // 使用 GetResult() 的返回值
-            if (result == true)
+            viewModel.CloseAction = r =>
             {
-                command = viewModel.GetResult();
+                window.DialogResult = r;
+                window.Close();
+            };
+
+            var dialogResult = window.ShowDialog();
+            return dialogResult == true ? viewModel.GetResult() : null;
+        }
+
+        public Core.Interfaces.IProtocolConfig? ShowProtocolConfigDialog(Core.Interfaces.ProtocolType protocolType, Core.Interfaces.IProtocolConfig? existingConfig)
+        {
+            var (view, viewModel) = ResolveProtocolConfigView(protocolType);
+            if (view == null || viewModel == null)
+                return null;
+
+            viewModel.Initialize(existingConfig);
+
+            var window = new Window
+            {
+                Title = viewModel.Title,
+                Content = view,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                ResizeMode = ResizeMode.NoResize,
+                Owner = Application.Current.MainWindow,
+                WindowStyle = WindowStyle.ToolWindow
+            };
+
+            viewModel.CloseAction = r =>
+            {
+                window.DialogResult = r;
+                window.Close();
+            };
+
+            var dialogResult = window.ShowDialog();
+            return dialogResult == true ? viewModel.GetConfig() : null;
+        }
+
+        private (FrameworkElement? View, IProtocolConfigDialogViewModel? ViewModel) 
+            ResolveProtocolConfigView(Core.Interfaces.ProtocolType protocolType)
+        {
+            switch (protocolType)
+            {
+                case Core.Interfaces.ProtocolType.ModbusTcp:
+                    var tcpView = _containerProvider.Resolve<ModbusTCPConfigView>();
+                    var tcpViewModel = _containerProvider.Resolve<ModbusTCPConfigViewModel>();
+                    tcpView.DataContext = tcpViewModel;
+                    return (tcpView, tcpViewModel);
+
+                case Core.Interfaces.ProtocolType.ModbusRtu:
+                    var rtuView = _containerProvider.Resolve<ModbusRTUConfigView>();
+                    var rtuViewModel = _containerProvider.Resolve<ModbusRTUConfigViewModel>();
+                    rtuView.DataContext = rtuViewModel;
+                    return (rtuView, rtuViewModel);
+
+                default:
+                    return (null, null);
             }
-            
-            return result;
         }
     }
 }

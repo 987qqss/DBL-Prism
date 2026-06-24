@@ -8,6 +8,8 @@
   <ItemGroup>
     <PackageReference Include="Prism.DryIoc" Version="9.0.537" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
+    <PackageReference Include="NLog" Version="5.3.11" />
+    <PackageReference Include="NLog.Extensions.Logging" Version="5.3.11" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Core.csproj" />

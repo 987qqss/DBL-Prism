@@ -1,0 +1,145 @@
+<UserControl x:Class="DeviceModule.Views.Dialog.ProtocolConfig.ModbusRTUConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:prism="http://prismlibrary.com/"
+             Background="White"
+             Width="420"
+             Padding="16">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="{Binding Title}"
+                   FontSize="16"
+                   FontWeight="Bold"
+                   Foreground="{StaticResource TextPrimaryBrush}"
+                   Margin="0,0,0,16" />
+
+        <StackPanel Grid.Row="1" Margin="0,0,0,12">
+            <TextBlock Text="串口名称 *"
+                       FontSize="12"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,0,0,4" />
+            <TextBox Text="{Binding SerialPortName, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="8,6"
+                     FontSize="13" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Margin="0,0,0,12">
+            <TextBlock Text="波特率"
+                       FontSize="12"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,0,0,4" />
+            <ComboBox ItemsSource="{Binding BaudRates}"
+                      SelectedItem="{Binding BaudRate}"
+                      Padding="8,6"
+                      FontSize="13" />
+        </StackPanel>
+
+        <Grid Grid.Row="3" Margin="0,0,0,12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                <TextBlock Text="数据位"
+                           FontSize="12"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Margin="0,0,0,4" />
+                <ComboBox ItemsSource="{Binding DataBitsOptions}"
+                          SelectedItem="{Binding DataBits}"
+                          Padding="8,6"
+                          FontSize="13" />
+            </StackPanel>
+            <StackPanel Grid.Column="1">
+                <TextBlock Text="校验位"
+                           FontSize="12"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Margin="0,0,0,4" />
+                <ComboBox ItemsSource="{Binding ParityOptions}"
+                          SelectedItem="{Binding Parity}"
+                          Padding="8,6"
+                          FontSize="13" />
+            </StackPanel>
+        </Grid>
+
+        <StackPanel Grid.Row="4" Margin="0,0,0,12">
+            <TextBlock Text="停止位"
+                       FontSize="12"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,0,0,4" />
+            <ComboBox ItemsSource="{Binding StopBitsOptions}"
+                      SelectedItem="{Binding StopBits}"
+                      Padding="8,6"
+                      FontSize="13" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="5" Margin="0,0,0,12">
+            <TextBlock Text="从站地址"
+                       FontSize="12"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,0,0,4" />
+            <TextBox Text="{Binding SlaveId, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="8,6"
+                     FontSize="13" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="6" Margin="0,0,0,12">
+            <TextBlock Text="超时(ms)"
+                       FontSize="12"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,0,0,4" />
+            <TextBox Text="{Binding Timeout, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="8,6"
+                     FontSize="13" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="7" Margin="0,0,0,12">
+            <TextBlock Text="重试次数"
+                       FontSize="12"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,0,0,4" />
+            <TextBox Text="{Binding RetryCount, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="8,6"
+                     FontSize="13" />
+        </StackPanel>
+
+        <TextBlock Grid.Row="8"
+                   Text="带 * 的字段为必填项"
+                   FontSize="11"
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   Margin="0,0,0,12" />
+
+        <StackPanel Grid.Row="9"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Margin="0,8,0,0">
+            <Button Content="取消"
+                    Command="{Binding CancelCommand}"
+                    Width="80"
+                    Height="32"
+                    Margin="0,0,8,0"
+                    Background="#E5E7EB"
+                    Foreground="#374151" />
+            <Button Content="确定"
+                    Command="{Binding ConfirmCommand}"
+                    Width="80"
+                    Height="32"
+                    Background="#3B82F6"
+                    Foreground="White" />
+        </StackPanel>
+    </Grid>
+</UserControl>

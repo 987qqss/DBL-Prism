@@ -4,9 +4,6 @@ using Prism.Mvvm;
 
 namespace DeviceModule.ViewModels
 {
-    /// <summary>
-    /// 命令对话框视图模型 - 用于新增/编辑命令信息
-    /// </summary>
     public class CommandDialogViewModel : BindableBase
     {
         private string _title = string.Empty;

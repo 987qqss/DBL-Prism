@@ -1,17 +1,17 @@
+using Core.Interfaces;
 using Core.Models;
 using Prism.Commands;
 using Prism.Mvvm;
 
 namespace DeviceModule.ViewModels
 {
-    /// <summary>
-    /// 设备对话框视图模型 - 用于新增/编辑设备信息
-    /// </summary>
     public class DeviceDialogViewModel : BindableBase
     {
         private string _title = string.Empty;
         private bool _isEditMode;
+        private string _id = string.Empty;
         private string _name = string.Empty;
+        private ProtocolType _protocolType = ProtocolType.ModbusTcp;
         private DeviceModel? _originalModel;
 
         public string Title
@@ -26,6 +26,18 @@ namespace DeviceModule.ViewModels
             set => SetProperty(ref _isEditMode, value);
         }
 
+        public string Id
+        {
+            get => _id;
+            set
+            {
+                if (SetProperty(ref _id, value))
+                {
+                    ((DelegateCommand)ConfirmCommand).RaiseCanExecuteChanged();
+                }
+            }
+        }
+
         public string Name
         {
             get => _name;
@@ -37,6 +49,14 @@ namespace DeviceModule.ViewModels
                 }
             }
         }
+
+        public ProtocolType ProtocolType
+        {
+            get => _protocolType;
+            set => SetProperty(ref _protocolType, value);
+        }
+
+        public Array ProtocolTypes => Enum.GetValues(typeof(ProtocolType));
 
         public DelegateCommand ConfirmCommand { get; }
         public DelegateCommand CancelCommand { get; }
@@ -56,33 +76,43 @@ namespace DeviceModule.ViewModels
 
             if (isEditMode && device != null)
             {
+                _id = device.Id;
                 _name = device.Name ?? string.Empty;
+                _protocolType = device.ProtocolType;
             }
             else
             {
+                _id = Guid.NewGuid().ToString("N")[..8].ToUpper();
                 _name = string.Empty;
+                _protocolType = ProtocolType.ModbusTcp;
             }
 
+            RaisePropertyChanged(nameof(Id));
             RaisePropertyChanged(nameof(Name));
+            RaisePropertyChanged(nameof(ProtocolType));
             RaisePropertyChanged(nameof(Title));
+            ((DelegateCommand)ConfirmCommand).RaiseCanExecuteChanged();
         }
 
         public DeviceModel GetResult()
         {
             if (_originalModel != null)
             {
+                _originalModel.Id = Id;
                 _originalModel.Name = Name;
+                _originalModel.ProtocolType = ProtocolType;
                 return _originalModel;
             }
 
             return new DeviceModel
             {
-                Id = Guid.NewGuid().ToString("N")[..8].ToUpper(),
-                Name = Name
+                Id = Id,
+                Name = Name,
+                ProtocolType = ProtocolType
             };
         }
 
-        private bool CanExecuteConfirm() => !string.IsNullOrWhiteSpace(Name);
+        private bool CanExecuteConfirm() => !string.IsNullOrWhiteSpace(Id) && !string.IsNullOrWhiteSpace(Name);
         private void ExecuteConfirm() => CloseAction?.Invoke(true);
         private void ExecuteCancel() => CloseAction?.Invoke(false);
     }

@@ -6,8 +6,9 @@ namespace DeviceModule.Views
 {
     public partial class DeviceCommandTreeView
     {
-        public DeviceCommandTreeView()
+        public DeviceCommandTreeView(DeviceCommandTreeViewModel viewModel)
         {
+            DataContext = viewModel;
             InitializeComponent();
             CommandTree.SelectedItemChanged += OnTreeSelectionChanged;
         }
