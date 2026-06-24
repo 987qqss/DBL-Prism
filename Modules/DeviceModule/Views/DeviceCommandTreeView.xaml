@@ -12,8 +12,9 @@
              mc:Ignorable="d"
              Background="Transparent">
 
-    <!-- 纯树形结构：产线 → 设备 → 命令（标题和版本号由 Shell SidebarView 提供） -->
-    <TreeView x:Name="CommandTree"
+    <StackPanel>
+        <!-- 纯树形结构：产线 → 设备 → 命令（标题和版本号由 Shell SidebarView 提供） -->
+        <TreeView x:Name="CommandTree"
               ItemsSource="{Binding ProductionLines}"
               Background="Transparent"
               BorderThickness="0"
@@ -26,12 +27,12 @@
                     <StackPanel.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="📁 添加设备" FontSize="12"
-                                      Command="{Binding DataContext.AddDeviceToLineCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                      Command="{Binding DataContext.AddDeviceToLine, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
                             <Separator />
                             <MenuItem Header="🗑 删除产线" FontSize="12" Foreground="#EF4444"
-                                      Command="{Binding DataContext.DeleteProductionLineCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                      Command="{Binding DataContext.DeleteProductionLine, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
                         </ContextMenu>
                     </StackPanel.ContextMenu>
                     <TextBlock Text="📁" FontSize="14" Margin="0,0,6,0" />
@@ -49,23 +50,23 @@
                     <StackPanel.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="✏ 修改设备" FontSize="12"
-                                      Command="{Binding DataContext.EditDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                      Command="{Binding DataContext.EditDevice, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
                             <Separator />
                             <MenuItem Header="🔌 连接设备" FontSize="12"
-                                      Command="{Binding DataContext.ConnectDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                      Command="{Binding DataContext.ConnectDevice, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
                             <MenuItem Header="🔗 断开设备" FontSize="12"
-                                      Command="{Binding DataContext.DisconnectDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                      Command="{Binding DataContext.DisconnectDevice, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
                             <Separator />
                             <MenuItem Header="📄 添加命令" FontSize="12"
-                                      Command="{Binding DataContext.AddCommandToDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                      Command="{Binding DataContext.AddCommandToDevice, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
                             <Separator />
                             <MenuItem Header="🗑 删除设备" FontSize="12" Foreground="#EF4444"
-                                      Command="{Binding DataContext.DeleteDeviceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                      Command="{Binding DataContext.DeleteDevice, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
                         </ContextMenu>
                     </StackPanel.ContextMenu>
                     <Ellipse Width="8" Height="8" Margin="0,0,8,0">
@@ -99,12 +100,12 @@
                     <StackPanel.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="▶ 执行命令" FontSize="12"
-                                      Command="{Binding DataContext.ExecuteCommandCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                      Command="{Binding DataContext.ExecuteCommand, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
                             <Separator />
                             <MenuItem Header="🗑 删除命令" FontSize="12" Foreground="#EF4444"
-                                      Command="{Binding DataContext.DeleteCommandCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      CommandParameter="{Binding Path=PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
+                                      Command="{Binding DataContext.DeleteCommand, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
                         </ContextMenu>
                     </StackPanel.ContextMenu>
                     <TextBlock Text="▶"
@@ -121,77 +122,116 @@
         </TreeView.Resources>
 
         <!-- TreeViewItem 样式：自定义折叠箭头和选中高亮 -->
-        <TreeView.ItemContainerStyle>
-            <Style TargetType="TreeViewItem">
-                <Setter Property="IsExpanded" Value="True" />
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
-                <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="Padding" Value="4,2" />
-                <Setter Property="Template">
-                    <Setter.Value>
-                        <ControlTemplate TargetType="TreeViewItem">
-                            <StackPanel>
-                                <Border x:Name="Bd"
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="True" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Padding" Value="4,2" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TreeViewItem">
+                                <StackPanel>
+                                    <Border x:Name="Bd"
+                                            Background="{TemplateBinding Background}"
+                                            Padding="{TemplateBinding Padding}"
+                                            Margin="2,1"
+                                            CornerRadius="4">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="16" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
+                                            <ToggleButton x:Name="Expander"
+                                                          Grid.Column="0"
+                                                          ClickMode="Press"
+                                                          IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
+                                                          Width="16" Height="16"
+                                                          Margin="0,0,2,0">
+                                                <ToggleButton.Template>
+                                                    <ControlTemplate TargetType="ToggleButton">
+                                                        <Border Background="Transparent" Width="16" Height="16">
+                                                            <TextBlock x:Name="Arrow"
+                                                                       Text="▶"
+                                                                       FontSize="8"
+                                                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                                                       HorizontalAlignment="Center"
+                                                                       VerticalAlignment="Center" />
+                                                        </Border>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsChecked" Value="True">
+                                                                <Setter TargetName="Arrow" Property="Text" Value="▼" />
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </ToggleButton.Template>
+                                            </ToggleButton>
+                                            <ContentPresenter Grid.Column="1"
+                                                              ContentSource="Header"
+                                                              HorizontalAlignment="Stretch"
+                                                              VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+                                    <ItemsPresenter x:Name="ItemsHost" Margin="20,0,0,0" Visibility="Collapsed" />
+                                </StackPanel>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsExpanded" Value="True">
+                                        <Setter TargetName="ItemsHost" Property="Visibility" Value="Visible" />
+                                    </Trigger>
+                                    <Trigger Property="HasItems" Value="False">
+                                        <Setter TargetName="Expander" Property="Visibility" Value="Hidden" />
+                                    </Trigger>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#2200D4FF" />
+                                    </Trigger>
+                                    <Trigger SourceName="Bd" Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bd" Property="Background" Value="#22FFFFFF" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TreeView.ItemContainerStyle>
+        </TreeView>
+
+        <!-- 添加产线按钮 -->
+        <Button x:Name="AddProductionLineButton"
+                Content="➕ 添加产线"
+                Command="{Binding DataContext.AddProductionLine, Source={x:Reference CommandTree}}"
+                Margin="4,8,4,4"
+                Padding="8,4"
+                HorizontalAlignment="Left"
+                FontSize="12"
+                Height="30">
+            <Button.Style>
+                <Style TargetType="Button">
+                    <Setter Property="Background" Value="#3B82F6" />
+                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="BorderThickness" Value="0" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="ButtonBorder"
                                         Background="{TemplateBinding Background}"
-                                        Padding="{TemplateBinding Padding}"
-                                        Margin="2,1"
-                                        CornerRadius="4">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="16" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <ToggleButton x:Name="Expander"
-                                                      Grid.Column="0"
-                                                      ClickMode="Press"
-                                                      IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}"
-                                                      Width="16" Height="16"
-                                                      Margin="0,0,2,0">
-                                            <ToggleButton.Template>
-                                                <ControlTemplate TargetType="ToggleButton">
-                                                    <Border Background="Transparent" Width="16" Height="16">
-                                                        <TextBlock x:Name="Arrow"
-                                                                   Text="▶"
-                                                                   FontSize="8"
-                                                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                                                   HorizontalAlignment="Center"
-                                                                   VerticalAlignment="Center" />
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsChecked" Value="True">
-                                                            <Setter TargetName="Arrow" Property="Text" Value="▼" />
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </ToggleButton.Template>
-                                        </ToggleButton>
-                                        <ContentPresenter Grid.Column="1"
-                                                          ContentSource="Header"
-                                                          HorizontalAlignment="Stretch"
-                                                          VerticalAlignment="Center" />
-                                    </Grid>
+                                        CornerRadius="4"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
-                                <ItemsPresenter x:Name="ItemsHost" Margin="20,0,0,0" Visibility="Collapsed" />
-                            </StackPanel>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsExpanded" Value="True">
-                                    <Setter TargetName="ItemsHost" Property="Visibility" Value="Visible" />
-                                </Trigger>
-                                <Trigger Property="HasItems" Value="False">
-                                    <Setter TargetName="Expander" Property="Visibility" Value="Hidden" />
-                                </Trigger>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="#2200D4FF" />
-                                </Trigger>
-                                <Trigger SourceName="Bd" Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="Bd" Property="Background" Value="#22FFFFFF" />
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-        </TreeView.ItemContainerStyle>
-    </TreeView>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="ButtonBorder" Property="Background" Value="#2563EB" />
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="ButtonBorder" Property="Background" Value="#1D4ED8" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </Button.Style>
+        </Button>
+    </StackPanel>
 </UserControl>

@@ -3,6 +3,7 @@ using Prism.Modularity;
 using Prism.Navigation.Regions;
 using DeviceModule.Views;
 using DeviceModule.ViewModels;
+using DeviceModule.Services;
 
 namespace DeviceModule
 {
@@ -11,6 +12,16 @@ namespace DeviceModule
         //这个方式是在模块加载时调用，复制注册模块内部的类到全局容器中
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
+            // 注册对话框服务和对话框视图
+            containerRegistry.Register<Services.IDialogService, Services.DialogService>();
+            containerRegistry.Register<ProductionLineDialogView>();
+            containerRegistry.Register<ProductionLineDialogViewModel>();
+            containerRegistry.Register<DeviceDialogView>();
+            containerRegistry.Register<DeviceDialogViewModel>();
+            containerRegistry.Register<CommandDialogView>();
+            containerRegistry.Register<CommandDialogViewModel>();
+
+            // 注册模块视图
             containerRegistry.RegisterForNavigation<DeviceManagementView, DeviceManagementViewModel>();
             containerRegistry.RegisterForNavigation<DeviceStateView, DeviceStateViewModel>();
             containerRegistry.RegisterForNavigation<DeviceTreeView, DeviceTreeViewModel>();

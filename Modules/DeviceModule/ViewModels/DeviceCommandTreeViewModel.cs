@@ -1,7 +1,6 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using Core.Interfaces;
 using Core.Models;
+using DeviceModule.Services;
 using Prism.Navigation.Regions;
 using System.Collections.ObjectModel;
 
@@ -11,9 +10,10 @@ namespace DeviceModule.ViewModels
     /// 设备命令树 ViewModel（注入到侧栏 SidebarTreeRegion）
     /// 遵循 Prism 模块化原则：Shell 提供容器，Module 填充内容
     /// </summary>
-    public partial class DeviceCommandTreeViewModel : ObservableObject
+    public partial class DeviceCommandTreeViewModel : BindableBase
     {
         private readonly IRegionManager _regionManager;
+        private readonly Services.IDialogService _dialogService;
         private object? _selectedItem;
 
         public ObservableCollection<ProductionLineModel> ProductionLines { get; } = new();
@@ -28,14 +28,30 @@ namespace DeviceModule.ViewModels
             }
         }
 
-        public DeviceCommandTreeViewModel(IRegionManager regionManager)
+        public DeviceCommandTreeViewModel(IRegionManager regionManager, Services.IDialogService dialogService)
         {
             _regionManager = regionManager;
-            LoadMockData();
+            _dialogService = dialogService;
+            LoadMockData();//加载数据
+            AddCommand();//添加命令
         }
 
+        public DelegateCommand<ProductionLineModel> AddDeviceToLine { get; private set; } = null!;
+        public DelegateCommand<ProductionLineModel> DeleteProductionLine { get; private set; } = null!;
+
+        public DelegateCommand<DeviceModel> EditDevice { get; private set; } = null!;
+        public DelegateCommand<DeviceModel> ConnectDevice { get; private set; } = null!;
+        public DelegateCommand<DeviceModel> DisconnectDevice { get; private set; } = null!;
+        public DelegateCommand<DeviceModel> AddCommandToDevice { get; private set; } = null!;
+        public DelegateCommand<DeviceModel> DeleteDevice { get; private set; } = null!;
+
+        public DelegateCommand<DeviceCommand> ExecuteCommand { get; private set; } = null!;
+        public DelegateCommand<DeviceCommand> DeleteCommand { get; private set; } = null!;
+        
+        public DelegateCommand AddProductionLine { get; private set; } = null!;
         #region Mock Data
 
+        //这里加载数据，先用实例模板，后面可以用序列化加载出这些类实例
         private void LoadMockData()
         {
             var pl1 = new ProductionLineModel { Id = "PL001", Name = "电池仓产线 A" };
@@ -92,75 +108,107 @@ namespace DeviceModule.ViewModels
 
         #endregion
 
-        #region 产线右键菜单
-
-        [RelayCommand]
-        private void AddDeviceToLine(ProductionLineModel? line)
+        public void AddCommand()
         {
-            if (line == null) return;
-            var device = new DeviceModel
-            {
-                Name = $"新设备-{line.Devices.Count + 1}",
-                ProductionLineId = line.Id,
-                ProtocolType = ProtocolType.ModbusTcp
-            };
-            line.Devices.Add(device);
-            SelectedItem = device;
+            AddDeviceToLine = new DelegateCommand<ProductionLineModel>(_AddDeviceToLine);
+            DeleteProductionLine = new DelegateCommand<ProductionLineModel>(_DeleteProductionLine);
+            AddProductionLine = new DelegateCommand(_AddProductionLine);
+
+            EditDevice = new DelegateCommand<DeviceModel>(_EditDevice);
+            ConnectDevice = new DelegateCommand<DeviceModel>(_ConnectDevice);
+            DisconnectDevice = new DelegateCommand<DeviceModel>(_DisconnectDevice);
+            AddCommandToDevice = new DelegateCommand<DeviceModel>(_AddCommandToDevice);
+            DeleteDevice = new DelegateCommand<DeviceModel>(_DeleteDevice);
+
+            ExecuteCommand = new DelegateCommand<DeviceCommand>(_ExecuteCommand);
+            DeleteCommand = new DelegateCommand<DeviceCommand>(_DeleteCommand);
         }
 
-        [RelayCommand]
-        private void DeleteProductionLine(ProductionLineModel? line)
+        #region 产线右键菜单
+        private void _AddDeviceToLine(ProductionLineModel? line)
+        {
+            if (line == null) return;
+
+            // 使用对话框创建新设备
+            DeviceModel device = new();
+
+            var result = _dialogService.ShowDeviceDialog(ref device, isEditMode: false);
+            if (result == true && !string.IsNullOrWhiteSpace(device.Name))
+            {
+                device.ProductionLineId = line.Id;
+                line.Devices.Add(device);
+                SelectedItem = device;
+            }
+        }
+
+        private void _DeleteProductionLine(ProductionLineModel? line)
         {
             if (line == null) return;
             ProductionLines.Remove(line);
             SelectedItem = null;
         }
 
+        private void _AddProductionLine()
+        {
+            ProductionLineModel productionLine = new();
+
+            var result = _dialogService.ShowProductionLineDialog(ref productionLine, isEditMode: false);
+            if (result == true && !string.IsNullOrWhiteSpace(productionLine.Name))
+            {
+                ProductionLines.Add(productionLine);
+                SelectedItem = productionLine;
+            }
+        }
+
         #endregion
 
         #region 设备右键菜单
 
-        [RelayCommand]
-        private void EditDevice(DeviceModel? device)
+        private void _EditDevice(DeviceModel? device)
         {
             if (device == null) return;
-            SelectedItem = device;
-            NavigateTo("DeviceConfigView");
+
+            // 使用对话框编辑设备
+            DeviceModel editDevice = device;
+            var result = _dialogService.ShowDeviceDialog(ref editDevice, isEditMode: true);
+            if (result == true)
+            {
+                RaisePropertyChanged(nameof(ProductionLines));
+            }
         }
 
-        [RelayCommand]
-        private void ConnectDevice(DeviceModel? device)
+        private void _ConnectDevice(DeviceModel? device)
         {
             if (device == null) return;
             device.Status = DeviceStatus.Online;
             device.IsConnected = true;
         }
 
-        [RelayCommand]
-        private void DisconnectDevice(DeviceModel? device)
+ 
+        private void _DisconnectDevice(DeviceModel? device)
         {
             if (device == null) return;
             device.Status = DeviceStatus.Offline;
             device.IsConnected = false;
         }
 
-        [RelayCommand]
-        private void AddCommandToDevice(DeviceModel? device)
+        private void _AddCommandToDevice(DeviceModel? device)
         {
             if (device == null) return;
-            var cmd = new DeviceCommand
+
+            // 使用对话框创建新命令
+            DeviceCommand cmd = new();
+
+            var result = _dialogService.ShowCommandDialog(ref cmd, isEditMode: false);
+            if (result == true && !string.IsNullOrWhiteSpace(cmd.Name))
             {
-                Name = $"新命令-{device.Commands.Count + 1}",
-                DeviceId = device.Id,
-                CommandType = CommandType.Read,
-                OperationCode = 0x03
-            };
-            device.Commands.Add(cmd);
-            SelectedItem = cmd;
+                cmd.DeviceId = device.Id;
+                device.Commands.Add(cmd);
+                SelectedItem = cmd;
+            }
         }
 
-        [RelayCommand]
-        private void DeleteDevice(DeviceModel? device)
+        private void _DeleteDevice(DeviceModel? device)
         {
             if (device == null) return;
             var line = ProductionLines.FirstOrDefault(l => l.Devices.Contains(device));
@@ -172,16 +220,14 @@ namespace DeviceModule.ViewModels
 
         #region 命令右键菜单
 
-        [RelayCommand]
-        private void ExecuteCommand(DeviceCommand? cmd)
+        private void _ExecuteCommand(DeviceCommand? cmd)
         {
             if (cmd == null) return;
             SelectedItem = cmd;
             NavigateTo("OperateView");
         }
 
-        [RelayCommand]
-        private void DeleteCommand(DeviceCommand? cmd)
+        private void _DeleteCommand(DeviceCommand? cmd)
         {
             if (cmd == null) return;
             foreach (var line in ProductionLines)

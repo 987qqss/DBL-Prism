@@ -10,7 +10,7 @@ namespace Core.Models
 
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
-        public string Name
+        public string Name//通知UI界面产线名称更改
         {
             get => _name;
             set => SetProperty(ref _name, value);
