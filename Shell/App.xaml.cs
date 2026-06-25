@@ -1,6 +1,5 @@
 using Core.Interfaces;
 using DeviceModule.Services;
-using Infrastructure.Communication;
 using Infrastructure.Services;
 using LogModule.Services;
 using Prism.DryIoc;
@@ -39,10 +38,7 @@ namespace Shell
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.RegisterSingleton<IEventAggregator, EventAggregator>();
-            containerRegistry.RegisterSingleton<IPointTableService, PointTableService>();
             containerRegistry.RegisterSingleton<IUserSessionService, UserSessionService>();
-            containerRegistry.RegisterSingleton<ModbusTcpService>();
-            containerRegistry.RegisterSingleton<IModbusCommunicationService, ModbusCommunicationService>();
 
             // 日志服务（必须在 ConfigurationService 之前注册，因为后者依赖 ILogService）
             containerRegistry.RegisterSingleton<ILogService, LogService>();
