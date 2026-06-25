@@ -17,7 +17,7 @@ namespace Core.Models
         }
 
         public string Description { get; set; } = string.Empty;
-        public ObservableCollection<DeviceModel> Devices { get; } = new();
+        public ObservableCollection<DeviceModel> Devices { get; set; } = new();
         public DateTime CreatedTime { get; set; } = DateTime.Now;
         public DateTime UpdatedTime { get; set; } = DateTime.Now;
     }

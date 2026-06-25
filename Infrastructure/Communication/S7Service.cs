@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace Infrastructure.Communication
 {
-    public class S7Service : IS7Service, IDisposable
+    public class S7Service : IDisposable
     {
         private TcpClient? _tcpClient;
         private NetworkStream? _networkStream;

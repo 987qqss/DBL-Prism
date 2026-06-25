@@ -2,6 +2,7 @@ using Core.Interfaces;
 using DeviceModule.Services;
 using Infrastructure.Communication;
 using Infrastructure.Services;
+using LogModule.Services;
 using Prism.DryIoc;
 using Prism.Events;
 using Prism.Ioc;
@@ -17,6 +18,9 @@ namespace Shell
     {
         protected override Window CreateShell()
         {
+            var logService = Container.Resolve<ILogService>();
+            logService.Info("=== 储能集装箱电池仓数据监测系统 启动 ===", "System");
+            logService.Info($"启动时间: {DateTime.Now:yyyy-MM-dd HH:mm:ss}", "System");
             return Container.Resolve<MainView>();
         }
 
@@ -37,11 +41,20 @@ namespace Shell
             containerRegistry.RegisterSingleton<IEventAggregator, EventAggregator>();
             containerRegistry.RegisterSingleton<IPointTableService, PointTableService>();
             containerRegistry.RegisterSingleton<IUserSessionService, UserSessionService>();
-            containerRegistry.RegisterSingleton<IModbusService, ModbusTcpService>();
+            containerRegistry.RegisterSingleton<ModbusTcpService>();
             containerRegistry.RegisterSingleton<IModbusCommunicationService, ModbusCommunicationService>();
+
+            // 日志服务（必须在 ConfigurationService 之前注册，因为后者依赖 ILogService）
+            containerRegistry.RegisterSingleton<ILogService, LogService>();
+
+            // 命令扫描器（启动时反射扫描预定义命令类）
+            containerRegistry.RegisterSingleton<CommandScanner>();
 
             // 配置服务（必须在 CreateShell 前注册，MenuBarViewModel 依赖它）
             containerRegistry.RegisterSingleton<IConfigurationService, ConfigurationService>();
+
+            // 设备执行服务（管理驱动生命周期，支持连接/断开/命令执行）
+            containerRegistry.RegisterSingleton<IDeviceExecutionService, DeviceExecutionService>();
 
             containerRegistry.RegisterForNavigation<HomeView,HomeViewModel>();
             //containerRegistry.RegisterForNavigation<CommandRunView, CommandRunViewModel>();
@@ -55,11 +68,15 @@ namespace Shell
             base.InitializeShell(shell);
             shell.Show();
 
+            var logService = Container.Resolve<ILogService>();
+            logService.Info("主窗口初始化完成", "Shell");
+
             // 使用 Dispatcher 延迟导航，确保 Region 已注册
             shell.Dispatcher.BeginInvoke(new Action(() =>
             {
                 var regionManager = Container.Resolve<IRegionManager>();
                 regionManager.RequestNavigate("ContentRegion", "HomeView");
+                logService.Info("导航至首页 HomeView", "Shell");
             }));
         }
     }

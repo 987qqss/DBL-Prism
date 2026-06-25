@@ -11,6 +11,13 @@ namespace DeviceModule
 {
     public class DeviceModule : IModule
     {
+        private readonly ILogService _logService;
+
+        public DeviceModule(ILogService logService)
+        {
+            _logService = logService;
+        }
+
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
             containerRegistry.Register<Services.IDialogService, Services.DialogService>();
@@ -32,6 +39,7 @@ namespace DeviceModule
 
         public void OnInitialized(IContainerProvider containerProvider)
         {
+            _logService.Info("DeviceModule 设备模块初始化完成", "Module");
             var regionManager = containerProvider.Resolve<IRegionManager>();
             regionManager.RegisterViewWithRegion("DeviceConfigRegion", typeof(DeviceConfigView));
             regionManager.RegisterViewWithRegion("SidebarTreeRegion", typeof(DeviceCommandTreeView));

@@ -4,23 +4,30 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:converters="clr-namespace:LogModule.Converters"
              prism:ViewModelLocator.AutoWireViewModel="True"
-             Background="#0F1626">
+             Background="#0D1117">
     <UserControl.Resources>
         <converters:LogLevelToBrushConverter x:Key="LogLevelToBrushConverter" />
     </UserControl.Resources>
 
-    <Grid Margin="15">
+    <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="#1E1E2E" BorderBrush="#313244" BorderThickness="1" CornerRadius="12" Padding="20">
+        <!-- 顶部工具栏 -->
+        <Border Grid.Row="0" Background="#161B22" BorderBrush="#30363D" BorderThickness="0,0,0,1" Padding="12,8">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="日志管理" FontSize="20" FontWeight="Bold" Foreground="#E2E8F0" Margin="0,0,30,0"/>
-                
-                <TextBlock Text="级别:" Foreground="#94A3B8" Margin="0,0,8,0"/>
-                <ComboBox SelectedItem="{Binding SelectedLevel}" Width="100" Background="#252536" Foreground="White" BorderBrush="#313244">
+                <TextBlock Text="📋 系统日志" FontSize="16" FontWeight="Bold" Foreground="#E2E8F0" Margin="0,0,20,0"/>
+
+                <TextBlock Text="级别:" Foreground="#8B949E" Margin="0,0,6,0"/>
+                <ComboBox SelectedItem="{Binding SelectedLevel}" Width="90" Background="#21262D" Foreground="#E2E8F0" BorderBrush="#30363D">
+                    <ComboBox.Resources>
+                        <Style TargetType="ComboBoxItem">
+                            <Setter Property="Foreground" Value="#E2E8F0"/>
+                            <Setter Property="Background" Value="#21262D"/>
+                        </Style>
+                    </ComboBox.Resources>
                     <ComboBoxItem>全部</ComboBoxItem>
                     <ComboBoxItem>Debug</ComboBoxItem>
                     <ComboBoxItem>Info</ComboBoxItem>
@@ -28,40 +35,53 @@
                     <ComboBoxItem>Error</ComboBoxItem>
                 </ComboBox>
 
-                <TextBlock Text="关键词:" Foreground="#94A3B8" Margin="20,0,8,0"/>
-                <TextBox Text="{Binding SearchKeyword}" Width="200" Background="#252536" Foreground="White" BorderBrush="#313244"/>
+                <TextBlock Text="关键词:" Foreground="#8B949E" Margin="16,0,6,0"/>
+                <TextBox Text="{Binding SearchKeyword}" Width="180" Background="#21262D" Foreground="#E2E8F0" BorderBrush="#30363D" CaretBrush="#58A6FF"/>
 
-                <Button Content="导出日志" Command="{Binding ExportLogCommand}" 
-                        Style="{StaticResource MenuFlatButtonStyle}" Margin="20,0,10,0"/>
-                <Button Content="清空日志" Command="{Binding ClearLogCommand}" 
-                        Style="{StaticResource MenuFlatButtonStyle}"
-                        Background="#EF4444" Foreground="White"/>
+                <Button Content="清空" Command="{Binding ClearLogCommand}"
+                        Style="{StaticResource MenuFlatButtonStyle}" Margin="16,0,0,0"
+                        Background="#30363D" Foreground="#E2E8F0"/>
+                <Button Content="导出" Command="{Binding ExportLogCommand}"
+                        Style="{StaticResource MenuFlatButtonStyle}" Margin="4,0,0,0"
+                        Background="#1F6FEB" Foreground="White"/>
             </StackPanel>
         </Border>
 
-        <ScrollViewer Grid.Row="1" Margin="0,15,0,0" VerticalScrollBarVisibility="Auto">
-            <ListBox ItemsSource="{Binding Logs}" Background="Transparent" BorderThickness="0">
+        <!-- 日志内容区 - 工业上位机风格 -->
+        <Border Grid.Row="1" Background="#0D1117">
+            <ListBox ItemsSource="{Binding Logs}"
+                     Background="#0D1117"
+                     BorderThickness="0"
+                     VirtualizingPanel.ScrollUnit="Pixel"
+                     VirtualizingPanel.IsVirtualizing="True"
+                     VirtualizingPanel.VirtualizationMode="Recycling">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="#1E1E2E" BorderBrush="#313244" BorderThickness="0,0,0,1" Padding="10">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="150"/>
-                                    <ColumnDefinition Width="80"/>
-                                    <ColumnDefinition Width="120"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="{Binding Time}" Foreground="#64748B" FontFamily="Consolas"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Level}" 
-                                           Foreground="{Binding Level, Converter={StaticResource LogLevelToBrushConverter}}"
-                                           FontWeight="Bold"/>
-                                <TextBlock Grid.Column="2" Text="{Binding Source}" Foreground="#94A3B8"/>
-                                <TextBlock Grid.Column="3" Text="{Binding Message}" Foreground="#E2E8F0" TextWrapping="Wrap"/>
-                            </Grid>
-                        </Border>
+                        <TextBlock Text="{Binding FormattedLine}"
+                                   FontFamily="Consolas, Courier New"
+                                   FontSize="12"
+                                   Foreground="{Binding Level, Converter={StaticResource LogLevelToBrushConverter}}"
+                                   Margin="0,1,0,0"
+                                   Padding="8,1"
+                                   TextTrimming="CharacterEllipsis" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
+
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
             </ListBox>
-        </ScrollViewer>
+        </Border>
     </Grid>
 </UserControl>

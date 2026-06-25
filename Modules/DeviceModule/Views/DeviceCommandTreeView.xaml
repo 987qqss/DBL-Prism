@@ -13,6 +13,7 @@
 
     <StackPanel>
         <!-- 纯树形结构：产线 → 设备 → 命令（标题和版本号由 Shell SidebarView 提供） -->
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
         <TreeView x:Name="CommandTree"
               ItemsSource="{Binding ProductionLines}"
               Background="Transparent"
@@ -38,7 +39,8 @@
                     <TextBlock Text="{Binding Name}"
                                Foreground="{StaticResource TextPrimaryBrush}"
                                FontSize="13"
-                               FontWeight="SemiBold" />
+                               FontWeight="SemiBold"
+                               VerticalAlignment="Center" />
                 </StackPanel>
             </HierarchicalDataTemplate>
 
@@ -92,7 +94,8 @@
                     </Ellipse>
                     <TextBlock Text="{Binding Name}"
                                Foreground="{StaticResource TextPrimaryBrush}"
-                               FontSize="13" />
+                               FontSize="13"
+                               VerticalAlignment="Center" />
                 </StackPanel>
             </HierarchicalDataTemplate>
 
@@ -198,6 +201,7 @@
                 </Style>
             </TreeView.ItemContainerStyle>
         </TreeView>
+        </ScrollViewer>
 
         <!-- 添加产线按钮 -->
         <Button x:Name="AddProductionLineButton"

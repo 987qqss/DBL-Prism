@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
              Background="White"
-             Width="400"
+             Width="460"
              Padding="16">
 
     <Grid>
@@ -34,6 +34,18 @@
         </StackPanel>
 
         <StackPanel Grid.Row="2" Margin="0,0,0,12">
+            <TextBlock Text="协议地址"
+                       FontSize="12"
+                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Margin="0,0,0,4"
+                       ToolTip="Modbus: 03:1000:2 | S7: 5:128:32 | OPC UA: ns=2;s=Temp" />
+            <TextBox Text="{Binding ProtocolAddress, UpdateSourceTrigger=PropertyChanged}"
+                     Padding="8,6"
+                     FontSize="13"
+                     ToolTip="Modbus: 功能码:地址:长度 | S7: DB号:偏移:长度" />
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Margin="0,0,0,12">
             <TextBlock Text="命令类型"
                        FontSize="12"
                        Foreground="{StaticResource TextSecondaryBrush}"
@@ -43,34 +55,6 @@
                       Padding="8,6"
                       FontSize="13" />
         </StackPanel>
-
-        <Grid Grid.Row="3" Margin="0,0,0,12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="12" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Grid.Column="0">
-                <TextBlock Text="寄存器地址"
-                           FontSize="12"
-                           Foreground="{StaticResource TextSecondaryBrush}"
-                           Margin="0,0,0,4" />
-                <TextBox Text="{Binding Address, UpdateSourceTrigger=PropertyChanged}"
-                         Padding="8,6"
-                         FontSize="13" />
-            </StackPanel>
-
-            <StackPanel Grid.Column="2">
-                <TextBlock Text="数据长度"
-                           FontSize="12"
-                           Foreground="{StaticResource TextSecondaryBrush}"
-                           Margin="0,0,0,4" />
-                <TextBox Text="{Binding Length, UpdateSourceTrigger=PropertyChanged}"
-                         Padding="8,6"
-                         FontSize="13" />
-            </StackPanel>
-        </Grid>
 
         <TextBlock Grid.Row="4"
                    Text="带 * 的字段为必填项"

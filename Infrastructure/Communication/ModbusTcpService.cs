@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace Infrastructure.Communication
 {
-    public class ModbusTcpService : IModbusService, IDisposable
+    public class ModbusTcpService : IDisposable
     {
         private TcpClient? _tcpClient;
         private NetworkStream? _networkStream;

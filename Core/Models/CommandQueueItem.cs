@@ -2,6 +2,26 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Core.Models
 {
+    /// <summary>队列项调度模式</summary>
+    public enum ScheduleMode
+    {
+        Manual,       // 手动触发一次
+        Periodic,     // 按周期轮询
+        Conditional,  // 条件满足时触发
+        Sequential    // 按队列顺序依次执行
+    }
+
+    /// <summary>队列项运行时状态</summary>
+    public enum QueueItemStatus
+    {
+        Pending,
+        Running,
+        Completed,
+        Failed,
+        Paused,
+        Cancelled
+    }
+
     /// <summary>
     /// 命令队列项 —— 将一个命令绑定到执行队列中，携带调度策略和运行时状态。
     /// 与 DeviceCommand（数据定义）分离，实现"定义一次，排队多次"。

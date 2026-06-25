@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Infrastructure.Communication
 {
-    public class ModbusRtuService : IModbusService, IDisposable
+    public class ModbusRtuService : IDisposable
     {
         private readonly SerialPortService _serialPortService;
         private bool _disposed;
@@ -19,11 +19,6 @@ namespace Infrastructure.Communication
                           int dataBits = 8, StopBits stopBits = StopBits.One)
         {
             return _serialPortService.Open(portName, baudRate, parity, dataBits, stopBits);
-        }
-
-        bool IModbusService.Connect(string ipAddress, int port)
-        {
-            return Connect(ipAddress, port);
         }
 
         public void Disconnect()

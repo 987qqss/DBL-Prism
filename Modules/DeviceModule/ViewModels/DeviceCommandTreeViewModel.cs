@@ -13,6 +13,7 @@ namespace DeviceModule.ViewModels
         private readonly Services.IDialogService _dialogService;
         private readonly ILogService _logService;
         private readonly IConfigurationService _configService;
+        private readonly IDeviceExecutionService _executionService;
         private object? _selectedItem;
 
         public object? SelectedItem
@@ -25,12 +26,13 @@ namespace DeviceModule.ViewModels
             }
         }
 
-        public DeviceCommandTreeViewModel(IRegionManager regionManager, Services.IDialogService dialogService, ILogService logService, IConfigurationService configService)
+        public DeviceCommandTreeViewModel(IRegionManager regionManager, Services.IDialogService dialogService, ILogService logService, IConfigurationService configService, IDeviceExecutionService executionService)
         {
             _regionManager = regionManager;
             _dialogService = dialogService;
             _logService = logService;
             _configService = configService;
+            _executionService = executionService;
             AddCommand();
         }
         /// <summary>绑定到配置服务的全局唯一产线集合</summary>
@@ -54,17 +56,17 @@ namespace DeviceModule.ViewModels
 
         private void OnItemSelected(object? item)
         {
-            switch (item)
-            {
-                case DeviceCommand: NavigateTo("OperateView"); break;
-                case DeviceModel: NavigateTo("DeviceConfigView"); break;
-            }
+            //switch (item)
+            //{
+            //    case DeviceCommand: NavigateTo("OperateView"); break;
+            //    case DeviceModel: NavigateTo("DeviceConfigView"); break;
+            //}
         }
 
         private void NavigateTo(string viewName)
         {
-            if (string.IsNullOrWhiteSpace(viewName)) return;
-            _regionManager.RequestNavigate("ContentRegion", viewName);
+            //if (string.IsNullOrWhiteSpace(viewName)) return;
+            //_regionManager.RequestNavigate("ContentRegion", viewName);
         }
 
         #endregion
@@ -100,21 +102,25 @@ namespace DeviceModule.ViewModels
                 {
                     result.ProductionLineId = line.Id;
                     line.Devices.Add(result);
+                    _logService.Info($"设备 \"{result.Name}\" 已添加到产线 \"{line.Name}\"", "DeviceTree");
                     SelectedItem = result;
                     _logService.Info($"设备 {result.Name} 添加成功", "DeviceModule");
                 }
             }
             catch (Exception ex)
             {
+                _logService.Error($"添加设备失败: {ex.Message}", "DeviceTree", ex);
                 MessageBox.Show($"添加设备失败: {ex.Message}\n{ex.StackTrace}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
-           
+
         }
 
         private void _DeleteProductionLine(ProductionLineModel? line)
         {
             if (line == null) return;
+            var name = line.Name;
             ProductionLines.Remove(line);
+            _logService.Info($"产线 \"{name}\" 已删除", "DeviceTree");
             SelectedItem = null;
         }
 
@@ -125,6 +131,7 @@ namespace DeviceModule.ViewModels
             if (result != null && !string.IsNullOrWhiteSpace(result.Name))
             {
                 ProductionLines.Add(result);
+                _logService.Info($"产线 \"{result.Name}\" 添加成功", "DeviceTree");
                 SelectedItem = result;
             }
         }
@@ -141,6 +148,7 @@ namespace DeviceModule.ViewModels
             if (protocolConfig != null)
             {
                 device.SetConfig(protocolConfig);
+                _logService.Info($"设备 \"{device.Name}\" 协议配置已更新 ({protocolConfig.ProtocolType})", "DeviceTree");
             }
         }
 
@@ -156,18 +164,30 @@ namespace DeviceModule.ViewModels
             }
         }
 
-        private void _ConnectDevice(DeviceModel? device)
+        private async void _ConnectDevice(DeviceModel? device)
         {
             if (device == null) return;
-            device.Status = DeviceStatus.Online;
-            device.IsConnected = true;
+            try
+            {
+                await _executionService.ConnectAsync(device);
+            }
+            catch (Exception ex)
+            {
+                _logService.Error($"连接设备 \"{device.Name}\" 失败: {ex.Message}", "DeviceTree", ex);
+            }
         }
 
-        private void _DisconnectDevice(DeviceModel? device)
+        private async void _DisconnectDevice(DeviceModel? device)
         {
             if (device == null) return;
-            device.Status = DeviceStatus.Offline;
-            device.IsConnected = false;
+            try
+            {
+                await _executionService.DisconnectAsync(device);
+            }
+            catch (Exception ex)
+            {
+                _logService.Error($"断开设备 \"{device.Name}\" 失败: {ex.Message}", "DeviceTree", ex);
+            }
         }
 
         private void _AddCommandToDevice(DeviceModel? device)
@@ -180,6 +200,7 @@ namespace DeviceModule.ViewModels
             {
                 result.DeviceId = device.Id;
                 device.Commands.Add(result);
+                _logService.Info($"命令 \"{result.Name}\" 已添加到设备 \"{device.Name}\"", "DeviceTree");
                 SelectedItem = result;
             }
         }
@@ -187,8 +208,10 @@ namespace DeviceModule.ViewModels
         private void _DeleteDevice(DeviceModel? device)
         {
             if (device == null) return;
+            var name = device.Name;
             var line = ProductionLines.FirstOrDefault(l => l.Devices.Contains(device));
             line?.Devices.Remove(device);
+            _logService.Info($"设备 \"{name}\" 已删除", "DeviceTree");
             SelectedItem = null;
         }
 
@@ -196,11 +219,98 @@ namespace DeviceModule.ViewModels
 
         #region 命令右键菜单
 
-        private void _ExecuteCommand(DeviceCommand? cmd)
+        private async void _ExecuteCommand(DeviceCommand? cmd)
         {
             if (cmd == null) return;
             SelectedItem = cmd;
-            NavigateTo("OperateView");
+
+            // 查找命令所属的设备
+            DeviceModel? device = null;
+            foreach (var line in ProductionLines)
+                foreach (var dev in line.Devices)
+                    if (dev.Commands.Contains(cmd))
+                    {
+                        device = dev;
+                        break;
+                    }
+
+            if (device == null)
+            {
+                _logService.Error($"命令 \"{cmd.Name}\" 未找到所属设备", "DeviceTree");
+                return;
+            }
+
+            // ─── 统一入口：委托优先 → 数据回退 ───
+            if (cmd.ExecuteAction != null)
+            {
+                // 预定义命令：自动连接，然后传入驱动执行
+                if (!_executionService.IsConnected(device.Id))
+                {
+                    var connected = await _executionService.ConnectAsync(device);
+                    if (!connected)
+                    {
+                        MessageBox.Show($"设备 \"{device.Name}\" 未连接，无法执行命令", "提示",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        return;
+                    }
+                }
+
+                var driver = _executionService.GetDriver(device.Id);
+                try
+                {
+                    _logService.Info($"执行预定义命令: \"{cmd.Name}\"", "DeviceTree");
+                    await cmd.ExecuteAction(driver);
+                }
+                catch (Exception ex)
+                {
+                    _logService.Error($"预定义命令 \"{cmd.Name}\" 执行异常: {ex.Message}", "DeviceTree", ex);
+                }
+                return;
+            }
+
+            // ─── 手动命令：数据驱动执行路径 ───
+            if (!_executionService.IsConnected(device.Id))
+            {
+                _logService.Warn($"执行命令前设备 \"{device.Name}\" 未连接，尝试自动连接...", "DeviceTree");
+                var connected = await _executionService.ConnectAsync(device);
+                if (!connected)
+                {
+                    MessageBox.Show($"设备 \"{device.Name}\" 未连接，无法执行命令", "提示",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+
+            try
+            {
+                if (cmd.CommandType == CommandType.Read || cmd.CommandType == CommandType.ReadWrite)
+                {
+                    var result = await _executionService.ReadAsync(device, cmd);
+                    if (result.Success)
+                        _logService.Info($"命令 \"{cmd.Name}\" 执行成功 → {result.FormattedValue}", "DeviceTree");
+                    else
+                        _logService.Error($"命令 \"{cmd.Name}\" 执行失败: {result.ErrorMessage}", "DeviceTree");
+                }
+
+                if (cmd.CommandType == CommandType.Write || cmd.CommandType == CommandType.ReadWrite)
+                {
+                    var result = await _executionService.WriteAsync(device, cmd);
+                    if (result.Success)
+                        _logService.Info($"命令 \"{cmd.Name}\" 写入成功", "DeviceTree");
+                    else
+                        _logService.Error($"命令 \"{cmd.Name}\" 写入失败: {result.ErrorMessage}", "DeviceTree");
+                }
+
+                if (cmd.CommandType == CommandType.Custom)
+                {
+                    _logService.Warn($"自定义命令 \"{cmd.Name}\" 暂不支持", "DeviceTree");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logService.Error($"执行命令 \"{cmd.Name}\" 异常: {ex.Message}", "DeviceTree", ex);
+                MessageBox.Show($"执行命令失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void _DeleteCommand(DeviceCommand? cmd)
@@ -210,7 +320,10 @@ namespace DeviceModule.ViewModels
                 foreach (var device in line.Devices)
                     if (device.Commands.Contains(cmd))
                     {
+                        var cmdName = cmd.Name;
+                        var devName = device.Name;
                         device.Commands.Remove(cmd);
+                        _logService.Info($"命令 \"{cmdName}\" 已从设备 \"{devName}\" 删除", "DeviceTree");
                         SelectedItem = null;
                         return;
                     }

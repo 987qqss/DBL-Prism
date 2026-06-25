@@ -13,6 +13,7 @@ namespace Shell.ViewModels
     {
         private readonly IRegionManager _regionManager;
         private readonly IConfigurationService _configService;
+        private readonly ILogService _logService;
         private string _statusMessage = "系统就绪";
         private bool _isSidebarOpen = false;
 
@@ -65,10 +66,11 @@ namespace Shell.ViewModels
         public DelegateCommand LogoutCommand { get; }
         public DelegateCommand ChangePasswordCommand { get; }
 
-        public MenuBarViewModel(IRegionManager regionManager, IConfigurationService configService)
+        public MenuBarViewModel(IRegionManager regionManager, IConfigurationService configService, ILogService logService)
         {
             _regionManager = regionManager;
             _configService = configService;
+            _logService = logService;
 
             SettingsCommand = new DelegateCommand(() => StatusMessage = "打开系统设置...");
             AboutCommand = new DelegateCommand(ShowAbout);
@@ -201,10 +203,12 @@ namespace Shell.ViewModels
             {
                 _configService.ExportConfig(dialog.FileName);
                 StatusMessage = $"配置已导出 → {System.IO.Path.GetFileName(dialog.FileName)}";
+                _logService.Info($"用户触发导出配置 → {System.IO.Path.GetFileName(dialog.FileName)}", "MenuBar");
             }
             catch (Exception ex)
             {
                 StatusMessage = "导出配置失败";
+                _logService.Error($"导出配置失败: {ex.Message}", "MenuBar", ex);
                 MessageBox.Show($"导出失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
@@ -225,10 +229,12 @@ namespace Shell.ViewModels
             {
                 _configService.ImportConfig(dialog.FileName);
                 StatusMessage = $"配置已导入 → {System.IO.Path.GetFileName(dialog.FileName)}";
+                _logService.Info($"用户触发导入配置 ← {System.IO.Path.GetFileName(dialog.FileName)}", "MenuBar");
             }
             catch (Exception ex)
             {
                 StatusMessage = "导入配置失败";
+                _logService.Error($"导入配置失败: {ex.Message}", "MenuBar", ex);
                 MessageBox.Show($"导入失败: {ex.Message}\n\n请确认文件格式正确", "错误",
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }

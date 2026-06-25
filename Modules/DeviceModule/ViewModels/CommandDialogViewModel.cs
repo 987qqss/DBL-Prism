@@ -10,8 +10,7 @@ namespace DeviceModule.ViewModels
         private bool _isEditMode;
         private string _name = string.Empty;
         private CommandType _commandType = CommandType.Read;
-        private ushort _address;
-        private ushort _length = 1;
+        private string _protocolAddress = string.Empty;
         private DeviceCommand? _originalModel;
 
         public string Title
@@ -44,22 +43,10 @@ namespace DeviceModule.ViewModels
             set => SetProperty(ref _commandType, value);
         }
 
-        public ushort Address
+        public string ProtocolAddress
         {
-            get => _address;
-            set
-            {
-                if (SetProperty(ref _address, value))
-                {
-                    ((DelegateCommand)ConfirmCommand).RaiseCanExecuteChanged();
-                }
-            }
-        }
-
-        public ushort Length
-        {
-            get => _length;
-            set => SetProperty(ref _length, value);
+            get => _protocolAddress;
+            set => SetProperty(ref _protocolAddress, value);
         }
 
         public Array CommandTypes => Enum.GetValues(typeof(CommandType));
@@ -84,21 +71,18 @@ namespace DeviceModule.ViewModels
             {
                 _name = command.Name ?? string.Empty;
                 _commandType = command.CommandType;
-                _address = command.Address;
-                _length = command.Length;
+                _protocolAddress = command.ProtocolAddress ?? string.Empty;
             }
             else
             {
                 _name = string.Empty;
                 _commandType = CommandType.Read;
-                _address = 0;
-                _length = 1;
+                _protocolAddress = string.Empty;
             }
 
             RaisePropertyChanged(nameof(Name));
             RaisePropertyChanged(nameof(CommandType));
-            RaisePropertyChanged(nameof(Address));
-            RaisePropertyChanged(nameof(Length));
+            RaisePropertyChanged(nameof(ProtocolAddress));
             RaisePropertyChanged(nameof(Title));
         }
 
@@ -108,8 +92,7 @@ namespace DeviceModule.ViewModels
             {
                 _originalModel.Name = Name;
                 _originalModel.CommandType = CommandType;
-                _originalModel.Address = Address;
-                _originalModel.Length = Length;
+                _originalModel.ProtocolAddress = ProtocolAddress;
                 return _originalModel;
             }
 
@@ -118,8 +101,7 @@ namespace DeviceModule.ViewModels
                 Id = Guid.NewGuid().ToString("N")[..8].ToUpper(),
                 Name = Name,
                 CommandType = CommandType,
-                Address = Address,
-                Length = Length
+                ProtocolAddress = ProtocolAddress
             };
         }
 

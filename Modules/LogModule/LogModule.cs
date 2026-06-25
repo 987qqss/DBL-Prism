@@ -12,6 +12,13 @@ namespace LogModule
 {
     public class LogModule : IModule
     {
+        private readonly ILogService _logService;
+
+        public LogModule(ILogService logService)
+        {
+            _logService = logService;
+        }
+
         public void RegisterTypes(IContainerRegistry containerRegistry)
         {
             //注册全局单例日志服务接口
@@ -22,6 +29,7 @@ namespace LogModule
 
         public void OnInitialized(IContainerProvider containerProvider)
         {
+            _logService.Info("LogModule 日志模块初始化完成", "Module");
             var regionManager = containerProvider.Resolve<IRegionManager>();
 
             // 监听区域集合变化：当 LogRegion 被创建（HomeView 加载后）时，自动导航 LogView 进去

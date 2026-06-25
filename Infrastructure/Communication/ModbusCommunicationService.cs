@@ -9,13 +9,13 @@ namespace Infrastructure.Communication
 {
     public class ModbusCommunicationService : IModbusCommunicationService
     {
-        private readonly IModbusService _modbusService;
+        private readonly ModbusTcpService _modbusService;
         private readonly IPointTableService _pointTableService;
         private readonly IEventAggregator _eventAggregator;
         private readonly Channel<ModbusReadResult> _readChannel;
         private readonly Channel<ModbusWriteCommand> _writeChannel;
 
-        public ModbusCommunicationService(IModbusService modbusService, IPointTableService pointTableService, IEventAggregator eventAggregator)
+        public ModbusCommunicationService(ModbusTcpService modbusService, IPointTableService pointTableService, IEventAggregator eventAggregator)
         {
             _modbusService = modbusService;
             _pointTableService = pointTableService;

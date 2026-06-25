@@ -52,7 +52,7 @@ namespace Core.Models
         }
 
         /// <summary>设备下的命令列表（树形结构叶子节点）</summary>
-        public ObservableCollection<DeviceCommand> Commands { get; } = new();
+        public ObservableCollection<DeviceCommand> Commands { get; set; } = new();
 
         /// <summary>设备下的数据点列表（运行时监控）</summary>
         [JsonIgnore]

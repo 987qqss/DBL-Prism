@@ -65,9 +65,9 @@ namespace LogModule.ViewModels
         {
             Application.Current.Dispatcher.Invoke(() =>
             {
-                Logs.Insert(0, new LogItem(entry));
+                Logs.Add(new LogItem(entry));
                 if (Logs.Count > 1000)
-                    Logs.RemoveAt(Logs.Count - 1);
+                    Logs.RemoveAt(0);
             });
         }
 
@@ -96,6 +96,7 @@ namespace LogModule.ViewModels
         public LogLevel Level { get; }
         public string Message { get; }
         public string Source { get; }
+        public string FormattedLine { get; }
 
         public LogItem(LogEntry entry)
         {
@@ -103,6 +104,7 @@ namespace LogModule.ViewModels
             Level = entry.Level;
             Message = entry.Message;
             Source = entry.Source;
+            FormattedLine = $"{Time} [{Level.ToString().ToUpper().PadRight(5)}] [{Source}] {Message}";
         }
     }
 }

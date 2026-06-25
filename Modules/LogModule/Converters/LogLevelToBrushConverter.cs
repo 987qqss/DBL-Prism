@@ -13,11 +13,11 @@ namespace LogModule.Converters
             var level = (LogLevel)value;
             return level switch
             {
-                LogLevel.Error => new SolidColorBrush(Color.FromRgb(239, 68, 68)),
-                LogLevel.Warn => new SolidColorBrush(Color.FromRgb(251, 191, 36)),
-                LogLevel.Info => new SolidColorBrush(Color.FromRgb(59, 130, 246)),
-                LogLevel.Debug => new SolidColorBrush(Color.FromRgb(148, 163, 184)),
-                _ => new SolidColorBrush(Color.FromRgb(148, 163, 184))
+                LogLevel.Error => new SolidColorBrush(Color.FromRgb(255, 100, 100)), // 亮红
+                LogLevel.Warn  => new SolidColorBrush(Color.FromRgb(255, 200, 60)),  // 琥珀
+                LogLevel.Info  => new SolidColorBrush(Color.FromRgb(180, 230, 255)), // 青白 (工业SCADA风格)
+                LogLevel.Debug => new SolidColorBrush(Color.FromRgb(130, 140, 155)), // 灰蓝
+                _              => new SolidColorBrush(Color.FromRgb(200, 210, 220))
             };
         }
 

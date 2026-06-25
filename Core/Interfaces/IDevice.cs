@@ -18,6 +18,7 @@ namespace Core.Interfaces
     }
 
     /// <summary>协议配置接口 —— 通过 [JsonDerivedType] 实现多态序列化</summary>
+    [JsonPolymorphic(TypeDiscriminatorPropertyName = "$type", IgnoreUnrecognizedTypeDiscriminators = true)]
     [JsonDerivedType(typeof(Models.ModbusTCPModel), nameof(ProtocolType.ModbusTcp))]
     [JsonDerivedType(typeof(Models.ModbusRTUModel), nameof(ProtocolType.ModbusRtu))]
     [JsonDerivedType(typeof(Models.S7Model), nameof(ProtocolType.S7))]

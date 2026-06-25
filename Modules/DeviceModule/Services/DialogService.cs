@@ -6,9 +6,9 @@ using DeviceModule.ViewModels;
 using DeviceModule.ViewModels.ProtocolConfig;
 using Prism.Ioc;
 using System.Windows;
-
 namespace DeviceModule.Services
 {
+    //这个类专门用于设备模块里打开的弹窗服务，比如添加或修改产线、设备、设备命令弹窗，配置协议弹窗
     public class DialogService : IDialogService
     {
         private readonly IContainerProvider _containerProvider;
@@ -74,6 +74,8 @@ namespace DeviceModule.Services
             return dialogResult == true ? viewModel.GetResult() : null;
         }
 
+        //传入一个设备命令类和是否编辑参数，根据是否编辑判断打开的窗口是否保留传进来的设备命令属性
+        //并且返回窗口修改后的设备命令类
         public DeviceCommand? ShowCommandDialog(DeviceCommand? cmd, bool isEditMode)
         {
             var view = _containerProvider.Resolve<CommandDialogView>();
@@ -102,13 +104,15 @@ namespace DeviceModule.Services
             return dialogResult == true ? viewModel.GetResult() : null;
         }
 
+        //这个方法通过传入的协议配置类型来打开对应的协议配置窗口，然后把传入的协议配置对象传入给窗口
+        //并且返回窗口最后的协议配置类，这样就实现了配置协议的时候根据协议类型多态打开配置协议窗口
         public Core.Interfaces.IProtocolConfig? ShowProtocolConfigDialog(Core.Interfaces.ProtocolType protocolType, Core.Interfaces.IProtocolConfig? existingConfig)
         {
             var (view, viewModel) = ResolveProtocolConfigView(protocolType);
             if (view == null || viewModel == null)
                 return null;
 
-            viewModel.Initialize(existingConfig);
+            viewModel.Initialize(existingConfig);//将传入的配置类传入给对应的viewModel让它初始化界面
 
             var window = new Window
             {
@@ -128,9 +132,10 @@ namespace DeviceModule.Services
             };
 
             var dialogResult = window.ShowDialog();
-            return dialogResult == true ? viewModel.GetConfig() : null;
+            return dialogResult == true ? viewModel.GetConfig() : null;//返回窗口更改后的配置
         }
 
+        //通过传入的协议类型返回对应的View和ViewModel
         private (FrameworkElement? View, IProtocolConfigDialogViewModel? ViewModel) 
             ResolveProtocolConfigView(Core.Interfaces.ProtocolType protocolType)
         {
