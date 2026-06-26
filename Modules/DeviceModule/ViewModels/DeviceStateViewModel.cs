@@ -1,241 +1,147 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using Core.Events;
 using Core.Interfaces;
 using Core.Models;
+using Prism.Events;
+using System.Collections.ObjectModel;
 
 namespace DeviceModule.ViewModels
 {
+    /// <summary>命令数据点在 UI 中的显示行</summary>
+    public partial class DataPointRow : ObservableObject
+    {
+        [ObservableProperty] private string _name = string.Empty;
+        [ObservableProperty] private string _commandType = string.Empty;
+        [ObservableProperty] private string _protocolAddress = string.Empty;
+        [ObservableProperty] private string _value = string.Empty;
+    }
+
     public partial class DeviceStateViewModel : ObservableObject
     {
-        private readonly IDeviceExecutionService _deviceExec;
-        private readonly IUserSessionService _userSession;
-        private CancellationTokenSource? _cts;
-        private DeviceModel? _dashboardDevice;
+        private readonly IConfigurationService _configService;
+        private readonly IEventAggregator _eventAggregator;
+        private DeviceModel? _device;
 
-        [ObservableProperty] private bool isPolling;
+        [ObservableProperty] private string _deviceName = "未选择";
+        [ObservableProperty] private string _connectionStatus = "未连接";
+        [ObservableProperty] private string _connectionColor = "#EF4444";
+        [ObservableProperty] private string _protocolType = "-";
+        [ObservableProperty] private string _protocolDetail = "-";
+        [ObservableProperty] private string _deviceId = "-";
 
-        [ObservableProperty] private string userName = string.Empty;
-
-        // ─── 数据点（XAML 绑定）───
-        public ModbusDataPoint Temperature { get; } = new()
-        {
-            Name = "温度1", SlaveId = 1, RegisterAddress = 0x1000,
-            ModbusType = ModbusFunctionCode.ReadInputRegisters, Unit = "°C",
-            DataFormat = DataFormat.Int16, Scale = 0.1f
-        };
-
-        public ModbusDataPoint Humidity { get; } = new()
-        {
-            Name = "湿度1", SlaveId = 1, RegisterAddress = 0x1001,
-            ModbusType = ModbusFunctionCode.ReadInputRegisters, Unit = "%RH",
-            DataFormat = DataFormat.Int16, Scale = 0.1f
-        };
-
-        public ModbusDataPoint WISState { get; } = new()
-        {
-            Name = "水浸传感器1", SlaveId = 1, RegisterAddress = 0x3000,
-            ModbusType = ModbusFunctionCode.ReadCoils, DataFormat = DataFormat.Bool
-        };
-
-        public ModbusDataPoint BatTemp { get; } = new()
-        {
-            Name = "液冷温度", SlaveId = 1, RegisterAddress = 0x1010,
-            ModbusType = ModbusFunctionCode.ReadInputRegisters, Unit = "°C",
-            DataFormat = DataFormat.Int16, Scale = 0.1f
-        };
-
-        public ModbusDataPoint CoolSet { get; } = new()
-        {
-            Name = "制冷设定", SlaveId = 1, RegisterAddress = 0x2000,
-            ModbusType = ModbusFunctionCode.ReadHoldingRegisters, Unit = "°C",
-            DataFormat = DataFormat.Int16, Scale = 0.1f
-        };
-
-        public ModbusDataPoint HeatSet { get; } = new()
-        {
-            Name = "制热设定", SlaveId = 1, RegisterAddress = 0x2002,
-            ModbusType = ModbusFunctionCode.ReadHoldingRegisters, Unit = "°C",
-            DataFormat = DataFormat.Int16, Scale = 0.1f
-        };
-
-        public ModbusDataPoint Fuse1_State { get; } = new()
-        {
-            Name = "熔断器1", SlaveId = 1, RegisterAddress = 0x3002,
-            ModbusType = ModbusFunctionCode.ReadCoils, DataFormat = DataFormat.Bool
-        };
-
-        public ModbusDataPoint Fuse2_State { get; } = new()
-        {
-            Name = "熔断器2", SlaveId = 1, RegisterAddress = 0x3003,
-            ModbusType = ModbusFunctionCode.ReadCoils, DataFormat = DataFormat.Bool
-        };
-
-        public ModbusDataPoint Fuse3_State { get; } = new()
-        {
-            Name = "熔断器3", SlaveId = 1, RegisterAddress = 0x3004,
-            ModbusType = ModbusFunctionCode.ReadCoils, DataFormat = DataFormat.Bool
-        };
-
-        public ModbusDataPoint AirCondition { get; } = new()
-        {
-            Name = "空调", SlaveId = 1, RegisterAddress = 0x3005,
-            ModbusType = ModbusFunctionCode.ReadCoils, DataFormat = DataFormat.Bool
-        };
-
-        public ModbusDataPoint FireAlarm { get; } = new()
-        {
-            Name = "消防系统", SlaveId = 1, RegisterAddress = 0x3006,
-            ModbusType = ModbusFunctionCode.ReadCoils, DataFormat = DataFormat.Bool
-        };
-
-        public ModbusDataPoint SmokeAlarm { get; } = new()
-        {
-            Name = "烟雾报警", SlaveId = 1, RegisterAddress = 0x3007,
-            ModbusType = ModbusFunctionCode.ReadCoils, DataFormat = DataFormat.Bool
-        };
-
-        public ModbusDataPoint Dehumidifier1_State { get; } = new()
-        {
-            Name = "除湿机1", SlaveId = 1, RegisterAddress = 0x2004,
-            ModbusType = ModbusFunctionCode.ReadCoils, DataFormat = DataFormat.Bool
-        };
-
-        public ModbusDataPoint Dehumidifier2_State { get; } = new()
-        {
-            Name = "除湿机2", SlaveId = 1, RegisterAddress = 0x2007,
-            ModbusType = ModbusFunctionCode.ReadCoils, DataFormat = DataFormat.Bool
-        };
-
-        public ModbusDataPoint Dehumidifier3_State { get; } = new()
-        {
-            Name = "除湿机3", SlaveId = 1, RegisterAddress = 0x2008,
-            ModbusType = ModbusFunctionCode.ReadCoils, DataFormat = DataFormat.Bool
-        };
+        /// <summary>数据点列表（XAML 直接绑定）</summary>
+        public ObservableCollection<DataPointRow> DataPoints { get; } = new();
 
         public DeviceStateViewModel(
-            IDeviceExecutionService deviceExec,
-            IUserSessionService userSession)
+            IConfigurationService configService,
+            IEventAggregator eventAggregator)
         {
-            _deviceExec = deviceExec;
-            _userSession = userSession;
+            _configService = configService;
+            _eventAggregator = eventAggregator;
 
-            if (_userSession.IsLogin)
-                UserName = _userSession.CurrentUser.UserName;
+            _eventAggregator.GetEvent<DeviceSelectedEvent>()
+                .Subscribe(OnDeviceSelected, ThreadOption.UIThread);
         }
 
-        [RelayCommand]
-        public async Task ReadPoll()
+        private void OnDeviceSelected(DeviceModel device)
         {
-            if (IsPolling) return;
-            _cts = new CancellationTokenSource();
-            IsPolling = true;
-
-            try
+            // 从旧设备取消订阅
+            if (_device != null)
             {
-                _dashboardDevice = BuildDashboardDevice();
-                if (!await _deviceExec.ConnectAsync(_dashboardDevice))
-                    return;
-
-                var pointMap = BuildPointMap();
-
-                while (!_cts.Token.IsCancellationRequested)
-                {
-                    foreach (var cmd in _dashboardDevice.Commands)
-                    {
-                        if (_cts.Token.IsCancellationRequested) break;
-
-                        var result = await _deviceExec.ReadAsync(_dashboardDevice, cmd);
-                        if (result.Success && pointMap.TryGetValue(cmd.Id, out var point))
-                        {
-                            point.UpdateValue(result.RawValue);
-                        }
-                    }
-                    await Task.Delay(1000, _cts.Token);
-                }
+                _device.PropertyChanged -= OnDevicePropertyChanged;
+                _device.Commands.CollectionChanged -= OnCommandsChanged;
             }
-            finally
-            {
-                IsPolling = false;
-                if (_dashboardDevice != null)
-                    await _deviceExec.DisconnectAsync(_dashboardDevice);
-            }
+
+            _device = device;
+
+            RefreshDeviceInfo();
+            RefreshDataPoints();
+
+            // 订阅新设备的变化
+            _device.PropertyChanged += OnDevicePropertyChanged;
+            _device.Commands.CollectionChanged += OnCommandsChanged;
         }
 
-        [RelayCommand]
-        public void StopPoll()
+        private void OnDevicePropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            _cts?.Cancel();
-            IsPolling = false;
+            RefreshDeviceInfo();
         }
 
-        /// <summary>构建仪表盘设备及所有传感器读取命令</summary>
-        private DeviceModel BuildDashboardDevice()
+        private void OnCommandsChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            var device = new DeviceModel
+            RefreshDataPoints();
+        }
+
+        private void RefreshDeviceInfo()
+        {
+            if (_device == null) return;
+
+            DeviceName = _device.Name;
+            DeviceId = _device.Id;
+
+            // 连接状态
+            ConnectionStatus = _device.Status switch
             {
-                Id = "dashboard-modbus-tcp",
-                Name = "储能系统主控",
-                Config = new ModbusTCPModel
-                {
-                    IpAddress = "127.0.0.1",
-                    Port = 502,
-                    SlaveId = 1,
-                    Timeout = 3000
-                }
+                DeviceStatus.Online => "已连接",
+                DeviceStatus.Offline => "已断开",
+                DeviceStatus.Error => "异常",
+                _ => "未配置"
+            };
+            ConnectionColor = _device.Status switch
+            {
+                DeviceStatus.Online => "#22C55E",
+                DeviceStatus.Offline => "#EF4444",
+                DeviceStatus.Error => "#EF4444",
+                _ => "#F59E0B"
             };
 
-            void Add(string id, string name, string address, DataFormat fmt, float scale = 1f, float offset = 0f, string? unit = null)
+            // 协议类型
+            ProtocolType = _device.ProtocolType switch
             {
-                device.Commands.Add(new DeviceCommand
-                {
-                    Id = id,
-                    Name = name,
-                    DeviceId = device.Id,
-                    CommandType = CommandType.Read,
-                    ProtocolAddress = address,
-                    DataFormat = fmt,
-                    Scale = scale,
-                    Offset = offset,
-                    Unit = unit ?? ""
-                });
-            }
+                Core.Interfaces.ProtocolType.ModbusTcp => "Modbus TCP",
+                Core.Interfaces.ProtocolType.ModbusRtu => "Modbus RTU",
+                Core.Interfaces.ProtocolType.S7 => "S7 (西门子)",
+                Core.Interfaces.ProtocolType.OpcUa => "OPC UA",
+                Core.Interfaces.ProtocolType.Dnp3 => "DNP3",
+                Core.Interfaces.ProtocolType.Bacnet => "BACnet",
+                Core.Interfaces.ProtocolType.Scpi => "SCPI",
+                Core.Interfaces.ProtocolType.TcpIp => "TCP/IP 原始",
+                Core.Interfaces.ProtocolType.Custom => "自定义",
+                _ => "-"
+            };
 
-            Add("temp1", "温度1", "04:1000:2", DataFormat.Int16, 0.1f, 0, "°C");
-            Add("hum1", "湿度1", "04:1001:1", DataFormat.Int16, 0.1f, 0, "%RH");
-            Add("ws1", "水浸传感器1", "01:3000:1", DataFormat.Bool);
-            Add("liq_temp", "液冷温度", "04:1010:1", DataFormat.Int16, 0.1f, 0, "°C");
-            Add("liq_cool", "制冷设定", "03:2000:2", DataFormat.Int16, 0.1f, 0, "°C");
-            Add("liq_heat", "制热设定", "03:2002:2", DataFormat.Int16, 0.1f, 0, "°C");
-            Add("fuse1", "熔断器1", "01:3002:1", DataFormat.Bool);
-            Add("fuse2", "熔断器2", "01:3003:1", DataFormat.Bool);
-            Add("fuse3", "熔断器3", "01:3004:1", DataFormat.Bool);
-            Add("ac", "空调", "01:3005:1", DataFormat.Bool);
-            Add("fire", "消防系统", "01:3006:1", DataFormat.Bool);
-            Add("smoke", "烟雾报警", "01:3007:1", DataFormat.Bool);
-            Add("dehum1", "除湿机1", "01:2004:3", DataFormat.Bool);
-            Add("dehum2", "除湿机2", "01:2007:1", DataFormat.Bool);
-            Add("dehum3", "除湿机3", "01:2008:1", DataFormat.Bool);
-
-            return device;
+            // 协议详情
+            ProtocolDetail = _device.Config switch
+            {
+                ModbusTCPModel t => $"IP:{t.IpAddress}:{t.Port}  SlaveId:{t.SlaveId}",
+                ModbusRTUModel r => $"{r.SerialPortName}  {r.BaudRate},{r.DataBits},{r.Parity},{r.StopBits}  SlaveId:{r.SlaveId}",
+                S7Model s => $"IP:{s.IpAddress}  Rack:{s.Rack}  Slot:{s.Slot}",
+                _ => _device.Config != null ? _device.Config.ProtocolType.ToString() : "未配置协议参数"
+            };
         }
 
-        private Dictionary<string, ModbusDataPoint> BuildPointMap() => new()
+        private void RefreshDataPoints()
         {
-            ["temp1"] = Temperature,
-            ["hum1"] = Humidity,
-            ["ws1"] = WISState,
-            ["liq_temp"] = BatTemp,
-            ["liq_cool"] = CoolSet,
-            ["liq_heat"] = HeatSet,
-            ["fuse1"] = Fuse1_State,
-            ["fuse2"] = Fuse2_State,
-            ["fuse3"] = Fuse3_State,
-            ["ac"] = AirCondition,
-            ["fire"] = FireAlarm,
-            ["smoke"] = SmokeAlarm,
-            ["dehum1"] = Dehumidifier1_State,
-            ["dehum2"] = Dehumidifier2_State,
-            ["dehum3"] = Dehumidifier3_State,
-        };
+            DataPoints.Clear();
+            if (_device == null) return;
+
+            foreach (var cmd in _device.Commands)
+            {
+                DataPoints.Add(new DataPointRow
+                {
+                    Name = cmd.Name,
+                    CommandType = cmd.CommandType switch
+                    {
+                        CommandType.Read => "读",
+                        CommandType.Write => "写",
+                        CommandType.ReadWrite => "读写",
+                        CommandType.Custom => "自定义",
+                        _ => "-"
+                    },
+                    ProtocolAddress = cmd.ProtocolAddress,
+                    Value = cmd.WriteValue?.ToString() ?? "-"
+                });
+            }
+        }
     }
 }

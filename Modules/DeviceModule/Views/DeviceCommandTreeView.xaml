@@ -5,15 +5,24 @@
              xmlns:vm="clr-namespace:DeviceModule.ViewModels"
              xmlns:cm="clr-namespace:Core.Models;assembly=Core"
              xmlns:ci="clr-namespace:Core.Interfaces;assembly=Core"
+             xmlns:converters="clr-namespace:DeviceModule.Converters"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              d:DataContext="{d:DesignInstance Type=vm:DeviceCommandTreeViewModel, IsDesignTimeCreatable=False}"
              mc:Ignorable="d"
              Background="Transparent">
 
-    <StackPanel>
-        <!-- 纯树形结构：产线 → 设备 → 命令（标题和版本号由 Shell SidebarView 提供） -->
-        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+    <UserControl.Resources>
+        <converters:DeviceStatusToBrushConverter x:Key="DeviceStatusBrush" />
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
         <TreeView x:Name="CommandTree"
               ItemsSource="{Binding ProductionLines}"
               Background="Transparent"
@@ -35,10 +44,10 @@
                                       CommandParameter="{Binding}" />
                         </ContextMenu>
                     </StackPanel.ContextMenu>
-                    <TextBlock Text="📁" FontSize="14" Margin="0,0,6,0" />
+                    <TextBlock Text="📁" FontSize="12" Margin="0,0,6,0" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding Name}"
                                Foreground="{StaticResource TextPrimaryBrush}"
-                               FontSize="13"
+                               FontSize="12"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center" />
                 </StackPanel>
@@ -74,27 +83,11 @@
                                       CommandParameter="{Binding}" />
                         </ContextMenu>
                     </StackPanel.ContextMenu>
-                    <Ellipse Width="8" Height="8" Margin="0,0,8,0">
-                        <Ellipse.Style>
-                            <Style TargetType="Ellipse">
-                                <Setter Property="Fill" Value="#6B7280" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static ci:DeviceStatus.Online}">
-                                        <Setter Property="Fill" Value="#22C55E" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static ci:DeviceStatus.Offline}">
-                                        <Setter Property="Fill" Value="#EF4444" />
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Status}" Value="{x:Static ci:DeviceStatus.NotConfigured}">
-                                        <Setter Property="Fill" Value="#F59E0B" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Ellipse.Style>
-                    </Ellipse>
+                    <Ellipse Width="8" Height="8" Margin="0,0,8,0"
+                             Fill="{Binding Status, Converter={StaticResource DeviceStatusBrush}}" />
                     <TextBlock Text="{Binding Name}"
                                Foreground="{StaticResource TextPrimaryBrush}"
-                               FontSize="13"
+                               FontSize="12"
                                VerticalAlignment="Center" />
                 </StackPanel>
             </HierarchicalDataTemplate>
@@ -109,6 +102,14 @@
                                       Command="{Binding DataContext.ExecuteCommand, Source={x:Reference CommandTree}}"
                                       CommandParameter="{Binding}" />
                             <Separator />
+                            <MenuItem Header="✏ 修改命令" FontSize="12"
+                                      Command="{Binding DataContext.EditCommand, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
+                            <Separator />
+                            <MenuItem Header="📥 添加到执行队列" FontSize="12"
+                                      Command="{Binding DataContext.AddToQueueCommand, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
+                            <Separator />
                             <MenuItem Header="🗑 删除命令" FontSize="12" Foreground="#EF4444"
                                       Command="{Binding DataContext.DeleteCommand, Source={x:Reference CommandTree}}"
                                       CommandParameter="{Binding}" />
@@ -121,7 +122,7 @@
                                VerticalAlignment="Center" />
                     <TextBlock Text="{Binding Name}"
                                Foreground="{StaticResource TextSecondaryBrush}"
-                               FontSize="12"
+                               FontSize="11"
                                VerticalAlignment="Center" />
                 </StackPanel>
             </DataTemplate>
@@ -179,11 +180,11 @@
                                                               VerticalAlignment="Center" />
                                         </Grid>
                                     </Border>
-                                    <ItemsPresenter x:Name="ItemsHost" Margin="20,0,0,0" Visibility="Collapsed" />
+                                    <ItemsPresenter x:Name="ItemsHost" Margin="20,0,0,0" />
                                 </StackPanel>
                                 <ControlTemplate.Triggers>
-                                    <Trigger Property="IsExpanded" Value="True">
-                                        <Setter TargetName="ItemsHost" Property="Visibility" Value="Visible" />
+                                    <Trigger Property="IsExpanded" Value="False">
+                                        <Setter TargetName="ItemsHost" Property="Visibility" Value="Collapsed" />
                                     </Trigger>
                                     <Trigger Property="HasItems" Value="False">
                                         <Setter TargetName="Expander" Property="Visibility" Value="Hidden" />
@@ -203,8 +204,7 @@
         </TreeView>
         </ScrollViewer>
 
-        <!-- 添加产线按钮 -->
-        <Button x:Name="AddProductionLineButton"
+        <Button x:Name="AddProductionLineButton" Grid.Row="1"
                 Content="➕ 添加产线"
                 Command="{Binding DataContext.AddProductionLine, Source={x:Reference CommandTree}}"
                 Margin="4,8,4,4"
@@ -240,5 +240,5 @@
                 </Style>
             </Button.Style>
         </Button>
-    </StackPanel>
+    </Grid>
 </UserControl>

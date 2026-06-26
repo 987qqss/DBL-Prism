@@ -82,6 +82,9 @@ namespace DeviceModule.ViewModels.ProtocolConfig
         public Array ParityOptions => Enum.GetValues(typeof(SerialParity));
         public Array StopBitsOptions => Enum.GetValues(typeof(SerialStopBits));
 
+        /// <summary>系统当前可用串口列表</summary>
+        public string[] AvailablePorts => System.IO.Ports.SerialPort.GetPortNames();
+
         public DelegateCommand ConfirmCommand { get; }
         public DelegateCommand CancelCommand { get; }
         public System.Action<bool>? CloseAction { get; set; }

@@ -28,10 +28,8 @@ namespace Shell
             moduleCatalog.AddModule<LogModule.LogModule>();
             moduleCatalog.AddModule<DeviceModule.DeviceModule>();
             moduleCatalog.AddModule<AlarmModule.AlarmModule>();
-            moduleCatalog.AddModule<OperationModule.OperationModule>();
             moduleCatalog.AddModule<StateMachineModule.StateMachineModule>();
             moduleCatalog.AddModule<ReportModule.ReportModule>();
-            moduleCatalog.AddModule<UserModule.UserModule>();
             moduleCatalog.AddModule<SettingsModule.SettingsModule>();
         }
 
@@ -51,6 +49,9 @@ namespace Shell
 
             // 设备执行服务（管理驱动生命周期，支持连接/断开/命令执行）
             containerRegistry.RegisterSingleton<IDeviceExecutionService, DeviceExecutionService>();
+
+            // 命令执行队列服务（设备命令树 → 入队，状态机面板 → 展示/执行）
+            containerRegistry.RegisterSingleton<ICommandQueueService, CommandQueueService>();
 
             containerRegistry.RegisterForNavigation<HomeView,HomeViewModel>();
             //containerRegistry.RegisterForNavigation<CommandRunView, CommandRunViewModel>();

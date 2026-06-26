@@ -3,83 +3,157 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
              Background="White"
-             Width="460"
+             Width="480" MaxHeight="620"
              Padding="16">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis" />
+    </UserControl.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
+        <!-- 标题 -->
         <TextBlock Grid.Row="0"
                    Text="{Binding Title}"
-                   FontSize="16"
-                   FontWeight="Bold"
+                   FontSize="16" FontWeight="Bold"
                    Foreground="{StaticResource TextPrimaryBrush}"
-                   Margin="0,0,0,16" />
-
-        <StackPanel Grid.Row="1" Margin="0,0,0,12">
-            <TextBlock Text="命令名称 *"
-                       FontSize="12"
-                       Foreground="{StaticResource TextSecondaryBrush}"
-                       Margin="0,0,0,4" />
-            <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
-                     Padding="8,6"
-                     FontSize="13" />
-        </StackPanel>
-
-        <StackPanel Grid.Row="2" Margin="0,0,0,12">
-            <TextBlock Text="协议地址"
-                       FontSize="12"
-                       Foreground="{StaticResource TextSecondaryBrush}"
-                       Margin="0,0,0,4"
-                       ToolTip="Modbus: 03:1000:2 | S7: 5:128:32 | OPC UA: ns=2;s=Temp" />
-            <TextBox Text="{Binding ProtocolAddress, UpdateSourceTrigger=PropertyChanged}"
-                     Padding="8,6"
-                     FontSize="13"
-                     ToolTip="Modbus: 功能码:地址:长度 | S7: DB号:偏移:长度" />
-        </StackPanel>
-
-        <StackPanel Grid.Row="3" Margin="0,0,0,12">
-            <TextBlock Text="命令类型"
-                       FontSize="12"
-                       Foreground="{StaticResource TextSecondaryBrush}"
-                       Margin="0,0,0,4" />
-            <ComboBox ItemsSource="{Binding CommandTypes}"
-                      SelectedItem="{Binding CommandType}"
-                      Padding="8,6"
-                      FontSize="13" />
-        </StackPanel>
-
-        <TextBlock Grid.Row="4"
-                   Text="带 * 的字段为必填项"
-                   FontSize="11"
-                   Foreground="{StaticResource TextSecondaryBrush}"
-                   VerticalAlignment="Bottom"
                    Margin="0,0,0,12" />
 
-        <StackPanel Grid.Row="5"
+        <!-- 可滚动内容 -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- 命令名称 -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="命令名称 *"
+                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                               Margin="0,0,0,4" />
+                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="8,6" FontSize="13" />
+                </StackPanel>
+
+                <!-- 协议地址 -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="协议地址"
+                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                               Margin="0,0,0,4"
+                               ToolTip="Modbus: 03:1000:2 | S7: 5:128:32" />
+                    <TextBox Text="{Binding ProtocolAddress, UpdateSourceTrigger=PropertyChanged}"
+                             Padding="8,6" FontSize="13"
+                             ToolTip="Modbus: 功能码:地址:长度 | S7: DB号:偏移:长度" />
+                </StackPanel>
+
+                <!-- 命令类型 -->
+                <StackPanel Margin="0,0,0,12">
+                    <TextBlock Text="命令类型"
+                               FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                               Margin="0,0,0,4" />
+                    <ComboBox ItemsSource="{Binding CommandTypes}"
+                              SelectedItem="{Binding CommandType}"
+                              Padding="8,6" FontSize="13" />
+                </StackPanel>
+
+                <!-- ═══ 读取参数（Read / ReadWrite 时显示）═══ -->
+                <Border Background="#F8FAFC" CornerRadius="6"
+                        Padding="12,10" Margin="0,4,0,12"
+                        Visibility="{Binding IsReadVisible, Converter={StaticResource BoolToVis}}"
+                        BorderBrush="#E2E8F0" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="读取参数"
+                                   FontSize="13" FontWeight="Bold"
+                                   Foreground="#2563EB" Margin="0,0,0,10" />
+
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="数据格式"
+                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,0,0,4" />
+                                <ComboBox ItemsSource="{Binding DataFormats}"
+                                          SelectedItem="{Binding DataFormat}"
+                                          Padding="8,6" FontSize="13" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="单位"
+                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,0,0,4"
+                                           ToolTip="如 V, ℃, %, kW" />
+                                <TextBox Text="{Binding Unit, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="8,6" FontSize="13" />
+                            </StackPanel>
+                        </Grid>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="转换系数 (Scale)"
+                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,0,0,4"
+                                           ToolTip="显示值 = 原始值 × Scale + Offset" />
+                                <TextBox Text="{Binding Scale, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="8,6" FontSize="13" />
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="偏移量 (Offset)"
+                                           FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                           Margin="0,0,0,4"
+                                           ToolTip="显示值 = 原始值 × Scale + Offset" />
+                                <TextBox Text="{Binding Offset, UpdateSourceTrigger=PropertyChanged}"
+                                         Padding="8,6" FontSize="13" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══ 写入参数（Write / ReadWrite 时显示）═══ -->
+                <Border Background="#FFFBEB" CornerRadius="6"
+                        Padding="12,10" Margin="0,4,0,12"
+                        Visibility="{Binding IsWriteVisible, Converter={StaticResource BoolToVis}}"
+                        BorderBrush="#FDE68A" BorderThickness="1">
+                    <StackPanel>
+                        <TextBlock Text="写入参数"
+                                   FontSize="13" FontWeight="Bold"
+                                   Foreground="#D97706" Margin="0,0,0,10" />
+                        <TextBlock Text="写入值 *"
+                                   FontSize="12" Foreground="{StaticResource TextSecondaryBrush}"
+                                   Margin="0,0,0,4" />
+                        <TextBox Text="{Binding WriteValue, UpdateSourceTrigger=PropertyChanged}"
+                                 Padding="8,6" FontSize="13" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 按钮行 -->
+        <StackPanel Grid.Row="2"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
-                    Margin="0,8,0,0">
+                    Margin="0,12,0,0">
             <Button Content="取消"
                     Command="{Binding CancelCommand}"
-                    Width="80"
-                    Height="32"
+                    Width="80" Height="32"
                     Margin="0,0,8,0"
-                    Background="#E5E7EB"
-                    Foreground="#374151" />
+                    Background="#E5E7EB" Foreground="#374151" />
             <Button Content="确定"
                     Command="{Binding ConfirmCommand}"
-                    Width="80"
-                    Height="32"
-                    Background="#3B82F6"
-                    Foreground="White" />
+                    Width="80" Height="32"
+                    Background="#3B82F6" Foreground="White" />
         </StackPanel>
     </Grid>
 </UserControl>

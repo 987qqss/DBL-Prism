@@ -4,7 +4,7 @@
              xmlns:prism="http://prismlibrary.com/"
              xmlns:converters="clr-namespace:LogModule.Converters"
              prism:ViewModelLocator.AutoWireViewModel="True"
-             Background="#0D1117">
+             Background="{StaticResource ContentBackground}">
     <UserControl.Resources>
         <converters:LogLevelToBrushConverter x:Key="LogLevelToBrushConverter" />
     </UserControl.Resources>
@@ -16,7 +16,7 @@
         </Grid.RowDefinitions>
 
         <!-- 顶部工具栏 -->
-        <Border Grid.Row="0" Background="#161B22" BorderBrush="#30363D" BorderThickness="0,0,0,1" Padding="12,8">
+        <Border Grid.Row="0" Background="{StaticResource PanelBackground}" BorderBrush="{StaticResource BorderBrushDark}" BorderThickness="0,0,0,1" Padding="12,8">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                 <TextBlock Text="📋 系统日志" FontSize="16" FontWeight="Bold" Foreground="#E2E8F0" Margin="0,0,20,0"/>
 
@@ -48,9 +48,10 @@
         </Border>
 
         <!-- 日志内容区 - 工业上位机风格 -->
-        <Border Grid.Row="1" Background="#0D1117">
-            <ListBox ItemsSource="{Binding Logs}"
-                     Background="#0D1117"
+        <Border Grid.Row="1" Background="{StaticResource ContentBackground}">
+            <ListBox x:Name="LogListBox" ItemsSource="{Binding Logs}"
+                     Loaded="LogListBox_Loaded"
+                     Background="{StaticResource ContentBackground}"
                      BorderThickness="0"
                      VirtualizingPanel.ScrollUnit="Pixel"
                      VirtualizingPanel.IsVirtualizing="True"

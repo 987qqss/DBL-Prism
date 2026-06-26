@@ -7,12 +7,13 @@
 
     <Grid Margin="8">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="280" />
+            <ColumnDefinition Width="*" MinWidth="300" />
+            <ColumnDefinition Width="6" />
+            <ColumnDefinition Width="310" MinWidth="280" />
         </Grid.ColumnDefinitions>
 
-        <!-- 左侧：上(命令执行) + 下(日志) -->
-        <Grid Grid.Column="0" Margin="0,0,8,0">
+        <!-- 左侧：上(状态机队列) + 下(日志) -->
+        <Grid Grid.Column="0" Margin="0,0,0,0">
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="280" />
@@ -26,8 +27,16 @@
                 Margin="0" />
         </Grid>
 
-        <!-- 右侧：设备状态 + 参数设置区域 -->
-        <ContentControl Grid.Column="1"
+        <!-- 可拖拽分隔条 -->
+        <GridSplitter Grid.Column="1"
+                      Width="6"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Stretch"
+                      Background="Transparent"
+                      ShowsPreview="True" />
+
+        <!-- 右侧：设备状态 + 数据点列表 -->
+        <ContentControl Grid.Column="2"
             prism:RegionManager.RegionName="StatusParamRegion"
             Margin="0" />
     </Grid>

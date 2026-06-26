@@ -1,5 +1,7 @@
+using Core.Events;
 using Core.Interfaces;
 using Core.Models;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Navigation.Regions;
 using System.Collections.ObjectModel;
@@ -14,6 +16,8 @@ namespace DeviceModule.ViewModels
         private readonly ILogService _logService;
         private readonly IConfigurationService _configService;
         private readonly IDeviceExecutionService _executionService;
+        private readonly ICommandQueueService _queueService;
+        private readonly IEventAggregator _eventAggregator;
         private object? _selectedItem;
 
         public object? SelectedItem
@@ -26,13 +30,15 @@ namespace DeviceModule.ViewModels
             }
         }
 
-        public DeviceCommandTreeViewModel(IRegionManager regionManager, Services.IDialogService dialogService, ILogService logService, IConfigurationService configService, IDeviceExecutionService executionService)
+        public DeviceCommandTreeViewModel(IRegionManager regionManager, Services.IDialogService dialogService, ILogService logService, IConfigurationService configService, IDeviceExecutionService executionService, ICommandQueueService queueService, IEventAggregator eventAggregator)
         {
             _regionManager = regionManager;
             _dialogService = dialogService;
             _logService = logService;
             _configService = configService;
             _executionService = executionService;
+            _queueService = queueService;
+            _eventAggregator = eventAggregator;
             AddCommand();
         }
         /// <summary>绑定到配置服务的全局唯一产线集合</summary>
@@ -49,18 +55,19 @@ namespace DeviceModule.ViewModels
 
         public DelegateCommand<DeviceCommand> ExecuteCommand { get; private set; } = null!;
         public DelegateCommand<DeviceCommand> DeleteCommand { get; private set; } = null!;
-        
+        public DelegateCommand<DeviceCommand> EditCommand { get; private set; } = null!;
+        public DelegateCommand<DeviceCommand> AddToQueueCommand { get; private set; } = null!;
+
         public DelegateCommand AddProductionLine { get; private set; } = null!;
 
         #region 导航
 
         private void OnItemSelected(object? item)
         {
-            //switch (item)
-            //{
-            //    case DeviceCommand: NavigateTo("OperateView"); break;
-            //    case DeviceModel: NavigateTo("DeviceConfigView"); break;
-            //}
+            if (item is DeviceModel device)
+            {
+                _eventAggregator.GetEvent<DeviceSelectedEvent>().Publish(device);
+            }
         }
 
         private void NavigateTo(string viewName)
@@ -86,6 +93,8 @@ namespace DeviceModule.ViewModels
 
             ExecuteCommand = new DelegateCommand<DeviceCommand>(_ExecuteCommand);
             DeleteCommand = new DelegateCommand<DeviceCommand>(_DeleteCommand);
+            EditCommand = new DelegateCommand<DeviceCommand>(_EditCommand);
+            AddToQueueCommand = new DelegateCommand<DeviceCommand>(_AddToQueue);
         }
 
         #region 产线右键菜单
@@ -149,6 +158,7 @@ namespace DeviceModule.ViewModels
             {
                 device.SetConfig(protocolConfig);
                 _logService.Info($"设备 \"{device.Name}\" 协议配置已更新 ({protocolConfig.ProtocolType})", "DeviceTree");
+                _eventAggregator.GetEvent<DeviceSelectedEvent>().Publish(device);
             }
         }
 
@@ -161,6 +171,7 @@ namespace DeviceModule.ViewModels
             if (result != null)
             {
                 RaisePropertyChanged(nameof(ProductionLines));
+                _eventAggregator.GetEvent<DeviceSelectedEvent>().Publish(device);
             }
         }
 
@@ -311,6 +322,53 @@ namespace DeviceModule.ViewModels
                 _logService.Error($"执行命令 \"{cmd.Name}\" 异常: {ex.Message}", "DeviceTree", ex);
                 MessageBox.Show($"执行命令失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private void _EditCommand(DeviceCommand? cmd)
+        {
+            if (cmd == null) return;
+            var result = _dialogService.ShowCommandDialog(cmd, isEditMode: true);
+            if (result != null)
+            {
+                _logService.Info($"命令 \"{result.Name}\" 已修改", "DeviceTree");
+                // 通知状态面板刷新
+                var device = FindDeviceByCommand(cmd);
+                if (device != null)
+                    _eventAggregator.GetEvent<DeviceSelectedEvent>().Publish(device);
+            }
+        }
+
+        private DeviceModel? FindDeviceByCommand(DeviceCommand cmd)
+        {
+            foreach (var line in ProductionLines)
+                foreach (var dev in line.Devices)
+                    if (dev.Commands.Contains(cmd))
+                        return dev;
+            return null;
+        }
+
+        private void _AddToQueue(DeviceCommand? cmd)
+        {
+            if (cmd == null) return;
+
+            // 查找命令所属设备
+            DeviceModel? device = null;
+            foreach (var line in ProductionLines)
+                foreach (var dev in line.Devices)
+                    if (dev.Commands.Contains(cmd))
+                    {
+                        device = dev;
+                        break;
+                    }
+
+            if (device == null)
+            {
+                _logService.Error($"无法将 \"{cmd.Name}\" 加入队列：未找到所属设备", "DeviceTree");
+                return;
+            }
+
+            _queueService.Enqueue(cmd, device.Id);
+            _logService.Info($"📥 命令 \"{cmd.Name}\" 已加入执行队列 (设备: {device.Name})", "DeviceTree");
         }
 
         private void _DeleteCommand(DeviceCommand? cmd)

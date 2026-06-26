@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -25,10 +25,8 @@
     <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\Modules\DeviceModule\DeviceModule.csproj" />
     <ProjectReference Include="..\Modules\AlarmModule\AlarmModule.csproj" />
-    <ProjectReference Include="..\Modules\OperationModule\OperationModule.csproj" />
     <ProjectReference Include="..\Modules\DataCollectionModule\StateMachineModule.csproj" />
     <ProjectReference Include="..\Modules\ReportModule\ReportModule.csproj" />
-    <ProjectReference Include="..\Modules\UserModule\UserModule.csproj" />
     <ProjectReference Include="..\Modules\SettingsModule\SettingsModule.csproj" />
     <ProjectReference Include="..\Modules\LogModule\LogModule.csproj" />
   </ItemGroup>

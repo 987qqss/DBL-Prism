@@ -43,6 +43,7 @@ namespace DeviceModule
             var regionManager = containerProvider.Resolve<IRegionManager>();
             regionManager.RegisterViewWithRegion("DeviceConfigRegion", typeof(DeviceConfigView));
             regionManager.RegisterViewWithRegion("SidebarTreeRegion", typeof(DeviceCommandTreeView));
+            regionManager.RegisterViewWithRegion("StatusParamRegion", typeof(DeviceStateView));
         }
     }
 }
