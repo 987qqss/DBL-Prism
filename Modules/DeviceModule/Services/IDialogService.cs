@@ -7,7 +7,7 @@ namespace DeviceModule.Services
     {
         ProductionLineModel? ShowProductionLineDialog(ProductionLineModel? model, bool isEditMode);
         DeviceModel? ShowDeviceDialog(DeviceModel? device, bool isEditMode);
-        DeviceCommand? ShowCommandDialog(DeviceCommand? cmd, bool isEditMode);
+        DeviceCommand? ShowCommandDialog(DeviceCommand? cmd, bool isEditMode, ProtocolType protocolType);
         IProtocolConfig? ShowProtocolConfigDialog(ProtocolType protocolType, IProtocolConfig? existingConfig);
     }
 }

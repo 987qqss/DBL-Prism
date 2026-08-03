@@ -9,6 +9,8 @@ namespace Core.Models
         public double? ConvertedValue { get; set; }
         public string FormattedValue { get; set; } = string.Empty;
         public string? ErrorMessage { get; set; }
+        /// <summary>完整异常信息（含堆栈），仅调试/日志使用，UI 不直接展示</summary>
+        public string? ErrorDetail { get; set; }
         public DateTime Timestamp { get; set; } = DateTime.Now;
     }
 
@@ -19,6 +21,8 @@ namespace Core.Models
         public string CommandName { get; set; } = string.Empty;
         public object? WrittenValue { get; set; }
         public string? ErrorMessage { get; set; }
+        /// <summary>完整异常信息（含堆栈），仅调试/日志使用，UI 不直接展示</summary>
+        public string? ErrorDetail { get; set; }
         public DateTime Timestamp { get; set; } = DateTime.Now;
     }
 }

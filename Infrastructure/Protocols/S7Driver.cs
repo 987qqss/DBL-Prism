@@ -2,7 +2,7 @@ using Core.Interfaces;
 using Core.Models;
 using S7.Net;
 
-namespace Infrastructure.DeviceDrivers
+namespace Infrastructure.Protocols
 {
     /// <summary>S7 (西门子) 协议驱动，基于 S7.Net 库。
     /// ProtocolAddress 格式: "DB编号:起始偏移:读取长度" 如 "5:128:32"</summary>
@@ -85,6 +85,7 @@ namespace Infrastructure.DeviceDrivers
             {
                 result.Success = false;
                 result.ErrorMessage = ex.Message;
+                result.ErrorDetail = ex.ToString();
             }
 
             return result;
@@ -123,6 +124,7 @@ namespace Infrastructure.DeviceDrivers
             {
                 result.Success = false;
                 result.ErrorMessage = ex.Message;
+                result.ErrorDetail = ex.ToString();
             }
 
             return result;

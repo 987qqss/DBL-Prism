@@ -7,13 +7,39 @@ namespace Core.Models
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class DeviceCommandClassAttribute : Attribute
     {
-        /// <summary>目标设备名称（与 DeviceModel.Name 精确匹配）</summary>
+        /// <summary>
+        /// 目标设备类型标识（与 DeviceModel.DeviceType 精确匹配）。
+        /// 优先使用 DeviceType 匹配；为 null 时回退到 DeviceName 匹配（向后兼容）。
+        /// 相比设备名，类型标识不随现场改名而变化，更稳定。
+        /// </summary>
+        public string? DeviceType { get; }
+
+        /// <summary>目标设备名称（与 DeviceModel.Name 精确匹配，兼容旧写法）</summary>
         public string DeviceName { get; }
 
-        public DeviceCommandClassAttribute(string deviceName)
+        /// <summary>指定设备类型标识（推荐）</summary>
+        public DeviceCommandClassAttribute(string deviceType, DeviceCommandClassMatchMode mode = DeviceCommandClassMatchMode.Type)
         {
-            DeviceName = deviceName;
+            if (mode == DeviceCommandClassMatchMode.Type)
+            {
+                DeviceType = deviceType;
+                DeviceName = string.Empty;
+            }
+            else
+            {
+                DeviceType = null;
+                DeviceName = deviceType;
+            }
         }
+    }
+
+    /// <summary>设备命令类匹配模式</summary>
+    public enum DeviceCommandClassMatchMode
+    {
+        /// <summary>按 DeviceModel.DeviceType 匹配（推荐，稳定）</summary>
+        Type,
+        /// <summary>按 DeviceModel.Name 匹配（兼容旧写法）</summary>
+        Name
     }
 
     /// <summary>

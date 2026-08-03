@@ -205,7 +205,7 @@ namespace DeviceModule.ViewModels
         {
             if (device == null) return;
 
-            var result = _dialogService.ShowCommandDialog(null, isEditMode: false);
+            var result = _dialogService.ShowCommandDialog(null, isEditMode: false, device.ProtocolType);
 
             if (result != null && !string.IsNullOrWhiteSpace(result.Name))
             {
@@ -327,12 +327,13 @@ namespace DeviceModule.ViewModels
         private void _EditCommand(DeviceCommand? cmd)
         {
             if (cmd == null) return;
-            var result = _dialogService.ShowCommandDialog(cmd, isEditMode: true);
+            var device = FindDeviceByCommand(cmd);
+            var result = _dialogService.ShowCommandDialog(cmd, isEditMode: true,
+                device?.ProtocolType ?? ProtocolType.ModbusTcp);
             if (result != null)
             {
                 _logService.Info($"命令 \"{result.Name}\" 已修改", "DeviceTree");
                 // 通知状态面板刷新
-                var device = FindDeviceByCommand(cmd);
                 if (device != null)
                     _eventAggregator.GetEvent<DeviceSelectedEvent>().Publish(device);
             }

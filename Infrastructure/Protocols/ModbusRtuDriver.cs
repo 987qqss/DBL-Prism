@@ -4,7 +4,7 @@ using NModbus;
 using NModbus.Serial;
 using System.IO.Ports;
 
-namespace Infrastructure.DeviceDrivers
+namespace Infrastructure.Protocols
 {
     /// <summary>Modbus RTU 串口协议驱动，基于 NModbus 库</summary>
     public class ModbusRtuDriver : IDeviceDriver
@@ -120,6 +120,7 @@ namespace Infrastructure.DeviceDrivers
             {
                 result.Success = false;
                 result.ErrorMessage = ex.Message;
+                result.ErrorDetail = ex.ToString();
             }
 
             return result;
@@ -166,6 +167,7 @@ namespace Infrastructure.DeviceDrivers
             {
                 result.Success = false;
                 result.ErrorMessage = ex.Message;
+                result.ErrorDetail = ex.ToString();
             }
 
             return result;

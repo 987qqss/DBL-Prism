@@ -103,7 +103,7 @@ namespace DeviceModule.Services
             ProductionLines.Clear();
 
             var pl1 = new ProductionLineModel { Id = "PL001", Name = "电池仓产线 A" };
-            var dev1 = new DeviceModel { Id = "DEV001", Name = "BMS-主控制器", Status = DeviceStatus.Online };
+            var dev1 = new DeviceModel { Id = "DEV001", Name = "BMS-主控制器", DeviceType = "BMS_MASTER", Status = DeviceStatus.Online };
             dev1.Commands.Add(new DeviceCommand { Id = "CMD001", Name = "读取总电压", CommandType = CommandType.Read, ProtocolAddress = "03:1000:2" });
             dev1.Commands.Add(new DeviceCommand { Id = "CMD002", Name = "读取电芯温度", CommandType = CommandType.Read, ProtocolAddress = "04:1010:4", Unit = "℃" });
             dev1.Commands.Add(new DeviceCommand { Id = "CMD003", Name = "设置充电阈值", CommandType = CommandType.Write, ProtocolAddress = "06:2000:1" });

@@ -19,19 +19,33 @@ namespace Infrastructure.Services
 
         /// <summary>
         /// 扫描所有程序集，将预定义命令注入到匹配的设备中。
-        /// 匹配规则: [DeviceCommandClass].DeviceName == DeviceModel.Name
+        /// 匹配规则:
+        ///   优先 [DeviceCommandClass].DeviceType == DeviceModel.DeviceType
+        ///   回退 [DeviceCommandClass].DeviceName == DeviceModel.Name（兼容旧写法）
         /// </summary>
-        //  将与产线集合里的设备名相同的预定义的设备命令添加到传入的产线集合中去
         public void ScanAndRegister(IEnumerable<ProductionLineModel> lines)
         {
-            var deviceLookup = new Dictionary<string, List<DeviceModel>>();
+            // 按类型标识索引（优先）
+            var typeLookup = new Dictionary<string, List<DeviceModel>>(StringComparer.OrdinalIgnoreCase);
+            // 按设备名索引（回退）
+            var nameLookup = new Dictionary<string, List<DeviceModel>>(StringComparer.OrdinalIgnoreCase);
+
             foreach (var line in lines)
+            {
                 foreach (var device in line.Devices)
                 {
-                    if (!deviceLookup.ContainsKey(device.Name))
-                        deviceLookup[device.Name] = new();
-                    deviceLookup[device.Name].Add(device);
+                    if (!string.IsNullOrWhiteSpace(device.DeviceType))
+                    {
+                        if (!typeLookup.ContainsKey(device.DeviceType))
+                            typeLookup[device.DeviceType] = new();
+                        typeLookup[device.DeviceType].Add(device);
+                    }
+
+                    if (!nameLookup.ContainsKey(device.Name))
+                        nameLookup[device.Name] = new();
+                    nameLookup[device.Name].Add(device);
                 }
+            }
 
             var scannedTypes = AppDomain.CurrentDomain.GetAssemblies()
                 .Where(a => !a.IsDynamic && !a.FullName!.StartsWith("System") && !a.FullName.StartsWith("Microsoft"))
@@ -46,7 +60,15 @@ namespace Infrastructure.Services
             {
                 var classAttr = type.GetCustomAttribute<DeviceCommandClassAttribute>()!;
 
-                if (!deviceLookup.TryGetValue(classAttr.DeviceName, out var devices))
+                // 优先按 DeviceType 匹配，找不到再按 DeviceName 匹配
+                List<DeviceModel>? devices = null;
+                if (!string.IsNullOrWhiteSpace(classAttr.DeviceType))
+                    typeLookup.TryGetValue(classAttr.DeviceType, out devices);
+
+                if (devices == null && !string.IsNullOrWhiteSpace(classAttr.DeviceName))
+                    nameLookup.TryGetValue(classAttr.DeviceName, out devices);
+
+                if (devices == null || devices.Count == 0)
                     continue;
 
                 // 通过 DI 或 Activator 创建命令类实例

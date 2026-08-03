@@ -1,6 +1,6 @@
 using Core.Models;
 
-namespace Infrastructure.DeviceDrivers
+namespace Infrastructure.Protocols
 {
     /// <summary>Modbus 寄存器与 .NET 类型的转换工具</summary>
     internal static class ModbusDataConverter

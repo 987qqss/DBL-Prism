@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="MQTTnet" Version="5.2.0.1603" />
     <PackageReference Include="Prism.Events" Version="9.0.537" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="System.Data.SQLite.Core" Version="1.0.118" />

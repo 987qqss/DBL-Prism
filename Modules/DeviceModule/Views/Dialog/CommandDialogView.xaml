@@ -44,7 +44,7 @@
                                ToolTip="Modbus: 03:1000:2 | S7: 5:128:32" />
                     <TextBox Text="{Binding ProtocolAddress, UpdateSourceTrigger=PropertyChanged}"
                              Padding="8,6" FontSize="13"
-                             ToolTip="Modbus: 功能码:地址:长度 | S7: DB号:偏移:长度" />
+                             ToolTip="按当前设备协议校验格式: Modbus: 功能码:地址:长度 | S7: DB号:偏移:长度" />
                 </StackPanel>
 
                 <!-- 命令类型 -->

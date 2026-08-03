@@ -56,7 +56,16 @@ namespace DeviceModule.ViewModels
             set => SetProperty(ref _protocolType, value);
         }
 
-        public Array ProtocolTypes => Enum.GetValues(typeof(ProtocolType));
+        /// <summary>
+        /// 已实现的协议类型（有对应驱动，可在 UI 选择）。
+        /// 未实现的协议（OPC UA/DNP3/BACnet/SCPI/Custom）不展示，避免用户选到无法连接的协议。
+        /// </summary>
+        public ProtocolType[] ProtocolTypes { get; } =
+        {
+            ProtocolType.ModbusTcp,
+            ProtocolType.ModbusRtu,
+            ProtocolType.S7
+        };
 
         public DelegateCommand ConfirmCommand { get; }
         public DelegateCommand CancelCommand { get; }

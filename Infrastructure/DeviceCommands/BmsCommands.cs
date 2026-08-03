@@ -9,10 +9,10 @@ namespace Infrastructure.DeviceCommands
     /// BMS-主控制器 预定义命令集 —— 由 CommandScanner 启动时自动注入。
     /// 每个 [DeviceCommand] 方法 = 设备树中一条可执行命令。
     /// </summary>
-    /// 这个类只是一个模板类，当有别的设备需要在程序里添加设备命令的时候就可以仿照这个类来实现
-    /// 只要[DeviceCommandClass("BMS-主控制器")]特性构造函数里传入的设备名称与
-    /// 设备集合里的某个设备名称一样就可以加载
-    [DeviceCommandClass("BMS-主控制器")]//使用特性类标记并且调用一个参数的构造函数传入名称
+    /// 模板类：为设备添加命令时仿照此类实现。
+    /// [DeviceCommandClass("BMS_MASTER")] 按设备类型标识匹配（推荐，改名不影响）；
+    /// 旧写法 [DeviceCommandClass("BMS-主控制器", DeviceCommandClassMatchMode.Name)] 按设备名匹配。
+    [DeviceCommandClass("BMS_MASTER")]//使用特性标记设备类型标识，与 DeviceModel.DeviceType 匹配
     public class BmsCommands
     {
         private readonly ILogService _log;

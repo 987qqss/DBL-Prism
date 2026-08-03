@@ -52,6 +52,11 @@ namespace Core.Models
         /// 预定义执行委托，签名 Task MethodName(IDeviceDriver? driver)。
         /// 由 CommandScanner 在启动时注入；为 null 时回退到数据驱动路径。
         /// </summary>
+        /// <remarks>
+        /// 【执行优先级】当 ExecuteAction 非空时，优先走委托路径（编译期绑定，快）；
+        /// 为 null 时回退到数据驱动路径（按 ProtocolAddress 走 IDeviceDriver.ReadAsync/WriteAsync）。
+        /// 两条路径不会同时执行：有委托则委托，无委托则数据。
+        /// </remarks>
         [JsonIgnore]
         public Func<IDeviceDriver?, Task>? ExecuteAction { get; set; }
     }

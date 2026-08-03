@@ -3,7 +3,7 @@ using Core.Models;
 using NModbus;
 using System.Net.Sockets;
 
-namespace Infrastructure.DeviceDrivers
+namespace Infrastructure.Protocols
 {
     /// <summary>Modbus TCP 协议驱动，基于 NModbus 库</summary>
     public class ModbusTcpDriver : IDeviceDriver
@@ -15,7 +15,7 @@ namespace Infrastructure.DeviceDrivers
 
         public bool IsConnected => _client?.Connected ?? false;
 
-        public Task<bool> ConnectAsync(IProtocolConfig config)
+        public async Task<bool> ConnectAsync(IProtocolConfig config)
         {
             if (config is not ModbusTCPModel tcp)
                 throw new ArgumentException($"ModbusTcpDriver 需要 ModbusTCPModel");
@@ -26,21 +26,25 @@ namespace Infrastructure.DeviceDrivers
             try
             {
                 _client = new TcpClient();
-                if (!_client.ConnectAsync(tcp.IpAddress, tcp.Port).Wait(TimeSpan.FromSeconds(3)))
-                {
-                    _client.Dispose();
-                    _client = null;
-                    return Task.FromResult(false);
-                }
+
+                // 用 CancellationToken 实现连接超时，不阻塞调用线程
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+                await _client.ConnectAsync(tcp.IpAddress, tcp.Port, cts.Token);
 
                 _master = new ModbusFactory().CreateMaster(_client);
-                return Task.FromResult(true);
+                return true;
+            }
+            catch (OperationCanceledException)
+            {
+                _client?.Dispose();
+                _client = null;
+                return false;
             }
             catch
             {
                 _client?.Dispose();
                 _client = null;
-                return Task.FromResult(false);
+                return false;
             }
         }
 
@@ -103,6 +107,7 @@ namespace Infrastructure.DeviceDrivers
             {
                 result.Success = false;
                 result.ErrorMessage = ex.Message;
+                result.ErrorDetail = ex.ToString();
             }
 
             return result;
@@ -149,6 +154,7 @@ namespace Infrastructure.DeviceDrivers
             {
                 result.Success = false;
                 result.ErrorMessage = ex.Message;
+                result.ErrorDetail = ex.ToString();
             }
 
             return result;

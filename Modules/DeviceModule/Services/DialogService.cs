@@ -8,7 +8,7 @@ using Prism.Ioc;
 using System.Windows;
 namespace DeviceModule.Services
 {
-    //Õâ¸öÀà×¨ÃÅÓÃÓÚÉè±¸Ä£¿éÀï´ò¿ªµÄµ¯´°·şÎñ£¬±ÈÈçÌí¼Ó»òĞŞ¸Ä²úÏß¡¢Éè±¸¡¢Éè±¸ÃüÁîµ¯´°£¬ÅäÖÃĞ­Òéµ¯´°
+    //ï¿½ï¿½ï¿½ï¿½ï¿½×¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è±¸Ä£ï¿½ï¿½ï¿½ï¿½ò¿ªµÄµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ñ£¬±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó»ï¿½ï¿½Ş¸Ä²ï¿½ï¿½ß¡ï¿½ï¿½è±¸ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½îµ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ­ï¿½éµ¯ï¿½ï¿½
     public class DialogService : IDialogService
     {
         private readonly IContainerProvider _containerProvider;
@@ -74,14 +74,14 @@ namespace DeviceModule.Services
             return dialogResult == true ? viewModel.GetResult() : null;
         }
 
-        //´«ÈëÒ»¸öÉè±¸ÃüÁîÀàºÍÊÇ·ñ±à¼­²ÎÊı£¬¸ù¾İÊÇ·ñ±à¼­ÅĞ¶Ï´ò¿ªµÄ´°¿ÚÊÇ·ñ±£Áô´«½øÀ´µÄÉè±¸ÃüÁîÊôĞÔ
-        //²¢ÇÒ·µ»Ø´°¿ÚĞŞ¸ÄºóµÄÉè±¸ÃüÁîÀà
-        public DeviceCommand? ShowCommandDialog(DeviceCommand? cmd, bool isEditMode)
+        //ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½à¼­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç·ï¿½à¼­ï¿½Ğ¶Ï´ò¿ªµÄ´ï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        //ï¿½ï¿½ï¿½Ò·ï¿½ï¿½Ø´ï¿½ï¿½ï¿½ï¿½Ş¸Äºï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        public DeviceCommand? ShowCommandDialog(DeviceCommand? cmd, bool isEditMode, ProtocolType protocolType)
         {
             var view = _containerProvider.Resolve<CommandDialogView>();
             var viewModel = _containerProvider.Resolve<CommandDialogViewModel>();
             view.DataContext = viewModel;
-            viewModel.Initialize(cmd ?? new DeviceCommand(), isEditMode);
+            viewModel.Initialize(cmd ?? new DeviceCommand(), isEditMode, protocolType);
 
             var window = new Window
             {
@@ -104,15 +104,15 @@ namespace DeviceModule.Services
             return dialogResult == true ? viewModel.GetResult() : null;
         }
 
-        //Õâ¸ö·½·¨Í¨¹ı´«ÈëµÄĞ­ÒéÅäÖÃÀàĞÍÀ´´ò¿ª¶ÔÓ¦µÄĞ­ÒéÅäÖÃ´°¿Ú£¬È»ºó°Ñ´«ÈëµÄĞ­ÒéÅäÖÃ¶ÔÏó´«Èë¸ø´°¿Ú
-        //²¢ÇÒ·µ»Ø´°¿Ú×îºóµÄĞ­ÒéÅäÖÃÀà£¬ÕâÑù¾ÍÊµÏÖÁËÅäÖÃĞ­ÒéµÄÊ±ºò¸ù¾İĞ­ÒéÀàĞÍ¶àÌ¬´ò¿ªÅäÖÃĞ­Òé´°¿Ú
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ò¿ª¶ï¿½Ó¦ï¿½ï¿½Ğ­ï¿½ï¿½ï¿½ï¿½ï¿½Ã´ï¿½ï¿½Ú£ï¿½È»ï¿½ï¿½Ñ´ï¿½ï¿½ï¿½ï¿½Ğ­ï¿½ï¿½ï¿½ï¿½ï¿½Ã¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        //ï¿½ï¿½ï¿½Ò·ï¿½ï¿½Ø´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½à£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ­ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ğ­ï¿½ï¿½ï¿½ï¿½ï¿½Í¶ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ­ï¿½é´°ï¿½ï¿½
         public Core.Interfaces.IProtocolConfig? ShowProtocolConfigDialog(Core.Interfaces.ProtocolType protocolType, Core.Interfaces.IProtocolConfig? existingConfig)
         {
             var (view, viewModel) = ResolveProtocolConfigView(protocolType);
             if (view == null || viewModel == null)
                 return null;
 
-            viewModel.Initialize(existingConfig);//½«´«ÈëµÄÅäÖÃÀà´«Èë¸ø¶ÔÓ¦µÄviewModelÈÃËü³õÊ¼»¯½çÃæ
+            viewModel.Initialize(existingConfig);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½à´«ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½viewModelï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
             var window = new Window
             {
@@ -132,10 +132,10 @@ namespace DeviceModule.Services
             };
 
             var dialogResult = window.ShowDialog();
-            return dialogResult == true ? viewModel.GetConfig() : null;//·µ»Ø´°¿Ú¸ü¸ÄºóµÄÅäÖÃ
+            return dialogResult == true ? viewModel.GetConfig() : null;//ï¿½ï¿½ï¿½Ø´ï¿½ï¿½Ú¸ï¿½ï¿½Äºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         }
 
-        //Í¨¹ı´«ÈëµÄĞ­ÒéÀàĞÍ·µ»Ø¶ÔÓ¦µÄViewºÍViewModel
+        //Í¨ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ğ­ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½ï¿½Ø¶ï¿½Ó¦ï¿½ï¿½Viewï¿½ï¿½ViewModel
         private (FrameworkElement? View, IProtocolConfigDialogViewModel? ViewModel) 
             ResolveProtocolConfigView(Core.Interfaces.ProtocolType protocolType)
         {

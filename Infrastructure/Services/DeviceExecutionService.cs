@@ -1,6 +1,6 @@
 using Core.Interfaces;
 using Core.Models;
-using Infrastructure.DeviceDrivers;
+using Infrastructure.Protocols;
 
 namespace Infrastructure.Services
 {
@@ -107,7 +107,12 @@ namespace Infrastructure.Services
             if (result.Success)
                 _logService.Info($"读取成功: {result.FormattedValue}", "Driver");
             else
+            {
+                // UI 只显示简洁错误，完整异常进日志便于排查
                 _logService.Error($"读取失败: {result.ErrorMessage}", "Driver");
+                if (!string.IsNullOrWhiteSpace(result.ErrorDetail))
+                    _logService.Debug($"读取失败详情: {result.ErrorDetail}", "Driver");
+            }
             return result;
         }
 
@@ -120,7 +125,11 @@ namespace Infrastructure.Services
             if (result.Success)
                 _logService.Info($"写入成功", "Driver");
             else
+            {
                 _logService.Error($"写入失败: {result.ErrorMessage}", "Driver");
+                if (!string.IsNullOrWhiteSpace(result.ErrorDetail))
+                    _logService.Debug($"写入失败详情: {result.ErrorDetail}", "Driver");
+            }
             return result;
         }
 

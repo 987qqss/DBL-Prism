@@ -1,3 +1,4 @@
+using Core.Interfaces;
 using Core.Models;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -10,6 +11,7 @@ namespace DeviceModule.ViewModels
         private bool _isEditMode;
         private string _name = string.Empty;
         private CommandType _commandType = CommandType.Read;
+        private ProtocolType _protocolType = ProtocolType.ModbusTcp;
         private string _protocolAddress = string.Empty;
         private string _writeValue = string.Empty;
         private DataFormat _dataFormat = DataFormat.Int16;
@@ -17,6 +19,13 @@ namespace DeviceModule.ViewModels
         private float _offset;
         private string _unit = string.Empty;
         private DeviceCommand? _originalModel;
+
+        /// <summary>当前设备的协议类型，决定地址格式校验规则</summary>
+        public ProtocolType ProtocolType
+        {
+            get => _protocolType;
+            set => SetProperty(ref _protocolType, value);
+        }
 
         public string Title
         {
@@ -111,11 +120,12 @@ namespace DeviceModule.ViewModels
             CancelCommand = new DelegateCommand(ExecuteCancel);
         }
 
-        public void Initialize(DeviceCommand command, bool isEditMode)
+        public void Initialize(DeviceCommand command, bool isEditMode, ProtocolType protocolType = ProtocolType.ModbusTcp)
         {
             _originalModel = command;
             IsEditMode = isEditMode;
             Title = isEditMode ? "编辑命令" : "新增命令";
+            _protocolType = protocolType;
 
             if (isEditMode && command != null)
             {
@@ -209,8 +219,49 @@ namespace DeviceModule.ViewModels
             }
         }
 
-        private bool CanExecuteConfirm() => !string.IsNullOrWhiteSpace(Name);
-        private void ExecuteConfirm() => CloseAction?.Invoke(true);
+        private bool CanExecuteConfirm()
+            => !string.IsNullOrWhiteSpace(Name) && IsProtocolAddressValid();
+
+        private void ExecuteConfirm()
+        {
+            // 确认前再次校验地址，非法则提示且不关闭
+            if (!IsProtocolAddressValid())
+            {
+                System.Windows.MessageBox.Show(AddressErrorMessage(), "地址格式错误",
+                    System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Warning);
+                return;
+            }
+            CloseAction?.Invoke(true);
+        }
+
         private void ExecuteCancel() => CloseAction?.Invoke(false);
+
+        /// <summary>按协议类型校验协议地址是否合法</summary>
+        private bool IsProtocolAddressValid()
+        {
+            try
+            {
+                ProtocolAddressValidator.Validate(ProtocolType, ProtocolAddress);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>生成地址格式错误提示</summary>
+        private string AddressErrorMessage()
+        {
+            try
+            {
+                ProtocolAddressValidator.Validate(ProtocolType, ProtocolAddress);
+                return string.Empty;
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
     }
 }

@@ -19,6 +19,13 @@ namespace Core.Models
 
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
+        /// <summary>
+        /// 设备类型标识 —— 稳定标识，用于匹配预定义命令类。
+        /// 现场可改名 Name，但 DeviceType 不应随意变更（命令类靠它匹配）。
+        /// 留空时 CommandScanner 回退到按 Name 匹配（兼容旧配置）。
+        /// </summary>
+        public string DeviceType { get; set; } = string.Empty;
+
         public string Name
         {
             get => _name;
