@@ -53,6 +53,19 @@ namespace Shell
             // 命令执行队列服务（设备命令树 → 入队，状态机面板 → 展示/执行）
             containerRegistry.RegisterSingleton<ICommandQueueService, CommandQueueService>();
 
+            // MQTT 服务（应用层通信，事件推送源）
+            containerRegistry.RegisterSingleton<IMqttService, MqttService>();
+
+            // ─── 数据监测架构：数据中心 + 订阅者 ───
+            // 数据中心（Broker）：生产者写入，订阅者消费
+            containerRegistry.RegisterSingleton<IDataPointStore, DataPointStore>();
+            // 数据点配置服务（独立监测点配置）
+            containerRegistry.RegisterSingleton<IDataPointConfigService, DataPointConfigService>();
+            // 采集服务（生产者）：轮询/订阅 → 写入数据中心
+            containerRegistry.RegisterSingleton<DataCollectionService>();
+            // 报警引擎（订阅者）：状态机判定
+            containerRegistry.RegisterSingleton<IAlarmEngine, AlarmEngine>();
+
             containerRegistry.RegisterForNavigation<HomeView,HomeViewModel>();
             //containerRegistry.RegisterForNavigation<CommandRunView, CommandRunViewModel>();
             //containerRegistry.RegisterForNavigation<LogView>();
@@ -63,6 +76,10 @@ namespace Shell
         protected override void InitializeShell(Window shell)
         {
             base.InitializeShell(shell);
+
+            // 启动数据监测架构：加载数据点配置 → 启动采集 → 启动报警
+            StartMonitoring();
+
             shell.Show();
 
             var logService = Container.Resolve<ILogService>();
@@ -75,6 +92,35 @@ namespace Shell
                 regionManager.RequestNavigate("ContentRegion", "HomeView");
                 logService.Info("导航至首页 HomeView", "Shell");
             }));
+        }
+
+        /// <summary>
+        /// 启动数据监测架构：
+        /// 1. 加载数据点配置（独立监测点）
+        /// 2. 启动采集服务（生产者：轮询/订阅 → 写入 DataPointStore）
+        /// 3. 启动报警引擎（订阅者：状态机判定）
+        /// </summary>
+        private void StartMonitoring()
+        {
+            try
+            {
+                // 1. 加载数据点配置
+                var configService = Container.Resolve<IDataPointConfigService>();
+                configService.Load();
+
+                // 2. 启动采集服务（生产者）
+                var collectionService = Container.Resolve<DataCollectionService>();
+                collectionService.Start();
+
+                // 3. 启动报警引擎（订阅者）
+                var alarmEngine = Container.Resolve<IAlarmEngine>();
+                alarmEngine.Start();
+            }
+            catch (Exception ex)
+            {
+                var logService = Container.Resolve<ILogService>();
+                logService.Error($"启动数据监测架构失败: {ex.Message}", "App", ex);
+            }
         }
     }
 }
