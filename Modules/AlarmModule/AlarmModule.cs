@@ -9,6 +9,8 @@ namespace AlarmModule
         {
             //加载报警视图和ViewModel到容器中
             containerRegistry.RegisterForNavigation<AlarmView, AlarmViewModel>();
+            // transient：每次打开报警窗口解析新实例
+            containerRegistry.Register<AlarmViewModel>();
         }
 
         public void OnInitialized(IContainerProvider containerProvider)
