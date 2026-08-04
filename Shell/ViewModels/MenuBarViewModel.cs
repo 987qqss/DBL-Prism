@@ -1,9 +1,12 @@
 using Core.Interfaces;
+using Infrastructure.Services;
 using Microsoft.Win32;
 using Prism.Commands;
+using Prism.Ioc;
 using Prism.Mvvm;
 using Prism.Navigation.Regions;
 using Shell.Models;
+using Shell.Services;
 using System.Collections.ObjectModel;
 using System.Windows;
 
@@ -14,8 +17,13 @@ namespace Shell.ViewModels
         private readonly IRegionManager _regionManager;
         private readonly IConfigurationService _configService;
         private readonly ILogService _logService;
+        private readonly DataCollectionService _collectionService;
+        private readonly IAlarmEngine _alarmEngine;
+        private readonly WindowManagerService _windowManager;
+        private readonly IContainerProvider _container;
         private string _statusMessage = "系统就绪";
         private bool _isSidebarOpen = false;
+        private bool _isPolling = false;
 
         public string StatusMessage
         {
@@ -66,11 +74,18 @@ namespace Shell.ViewModels
         public DelegateCommand LogoutCommand { get; }
         public DelegateCommand ChangePasswordCommand { get; }
 
-        public MenuBarViewModel(IRegionManager regionManager, IConfigurationService configService, ILogService logService)
+        public MenuBarViewModel(IRegionManager regionManager, IConfigurationService configService, ILogService logService, DataCollectionService collectionService, IAlarmEngine alarmEngine, WindowManagerService windowManager, IContainerProvider container)
         {
             _regionManager = regionManager;
             _configService = configService;
             _logService = logService;
+            _collectionService = collectionService;
+            _alarmEngine = alarmEngine;
+            _windowManager = windowManager;
+            _container = container;
+
+            // 报警自动弹窗：报警触发时若报警窗口未打开则自动打开
+            _alarmEngine.AlarmRaised += OnAlarmRaised;
 
             SettingsCommand = new DelegateCommand(() => StatusMessage = "打开系统设置...");
             AboutCommand = new DelegateCommand(ShowAbout);
@@ -94,8 +109,12 @@ namespace Shell.ViewModels
             //添加导航命令：根据传入的参数导航到对应的界面
             NavigateCommand = new DelegateCommand<string>(NavigateTo);
 
-            StartPollCommand = new DelegateCommand(() => StatusMessage = "开始轮询");
-            StopPollCommand = new DelegateCommand(() => StatusMessage = "停止轮询");
+            // 打开独立窗口命令
+            OpenMonitorWindowCommand = new DelegateCommand(OpenMonitorWindow);
+            OpenAlarmWindowCommand = new DelegateCommand(OpenAlarmWindow);
+
+            StartPollCommand = new DelegateCommand(StartPolling, () => !IsPolling);
+            StopPollCommand = new DelegateCommand(StopPolling, () => IsPolling);
             ConnectCommand = new DelegateCommand(() => StatusMessage = "已连接设备");
             DisconnectCommand = new DelegateCommand(() => StatusMessage = "已断开设备");
             ExportLogCommand = new DelegateCommand(() => StatusMessage = "导出日志");
@@ -140,7 +159,8 @@ namespace Shell.ViewModels
         private ObservableCollection<MenuItemModel> BuildViewMenu() => new()
         {
             new MenuItemModel { Header = "设备信息", IconKind = "Monitor", Command = new DelegateCommand(() => NavigateTo("DeviceStateView")) },
-            new MenuItemModel { Header = "报警信息", IconKind = "Alert", Command = new DelegateCommand(() => NavigateTo("AlarmView")) },
+            new MenuItemModel { Header = "设备监控", IconKind = "ChartLine", Command = OpenMonitorWindowCommand },
+            new MenuItemModel { Header = "报警信息", IconKind = "Alert", Command = OpenAlarmWindowCommand },
             new MenuItemModel { Header = "参数下发", IconKind = "Download", Command = new DelegateCommand(() => NavigateTo("OperateView")) },
             new MenuItemModel { IsSeparator = true },
             new MenuItemModel { Header = "操作日志", IconKind = "History", Command = new DelegateCommand(() => NavigateTo("LogView")) },
@@ -166,6 +186,95 @@ namespace Shell.ViewModels
             new MenuItemModel { IsSeparator = true },
             new MenuItemModel { Header = "修改密码", IconKind = "KeyChange", Command = ChangePasswordCommand },
         };
+
+        /// <summary>打开设备监控独立窗口</summary>
+        public DelegateCommand OpenMonitorWindowCommand { get; }
+        /// <summary>打开报警信息独立窗口</summary>
+        public DelegateCommand OpenAlarmWindowCommand { get; }
+
+        /// <summary>是否正在轮询（控制启用/停止菜单可用性）</summary>
+        public bool IsPolling
+        {
+            get => _isPolling;
+            set
+            {
+                if (SetProperty(ref _isPolling, value))
+                {
+                    StartPollCommand.RaiseCanExecuteChanged();
+                    StopPollCommand.RaiseCanExecuteChanged();
+                }
+            }
+        }
+
+        /// <summary>打开设备监控独立窗口（单例，已打开则前台显示）</summary>
+        private void OpenMonitorWindow()
+        {
+            _windowManager.OpenOrActivate("monitor", () =>
+            {
+                var vm = _container.Resolve<MonitorModule.ViewModels.DeviceMonitorViewModel>();
+                return new MonitorModule.Windows.MonitorWindow(vm);
+            });
+        }
+
+        /// <summary>打开报警信息独立窗口（单例，已打开则前台显示）</summary>
+        private void OpenAlarmWindow()
+        {
+            _windowManager.OpenOrActivate("alarm", () =>
+            {
+                var vm = _container.Resolve<AlarmModule.ViewModels.AlarmViewModel>();
+                return new AlarmModule.Windows.AlarmWindow(vm);
+            });
+        }
+
+        /// <summary>报警触发时自动弹窗（若未打开）</summary>
+        private void OnAlarmRaised(Core.Models.AlarmEvent evt)
+        {
+            Application.Current?.Dispatcher.BeginInvoke(() =>
+            {
+                if (!_windowManager.IsOpen("alarm"))
+                    OpenAlarmWindow();
+            });
+        }
+
+        /// <summary>启用轮询：启动采集服务 + 报警引擎</summary>
+        private void StartPolling()
+        {
+            try
+            {
+                // 确保数据点配置已同步到数据中心
+                _collectionService.Start();
+                _alarmEngine.Start();
+
+                IsPolling = true;
+                StatusMessage = "轮询已启动";
+                _logService.Info("▶ 用户启用轮询", "MenuBar");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "轮询启动失败";
+                _logService.Error($"轮询启动失败: {ex.Message}", "MenuBar", ex);
+                MessageBox.Show($"轮询启动失败: {ex.Message}", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>停止轮询：停止采集服务 + 报警引擎</summary>
+        private void StopPolling()
+        {
+            try
+            {
+                _collectionService.Stop();
+                _alarmEngine.Stop();
+
+                IsPolling = false;
+                StatusMessage = "轮询已停止";
+                _logService.Info("⏹ 用户停止轮询", "MenuBar");
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = "轮询停止失败";
+                _logService.Error($"轮询停止失败: {ex.Message}", "MenuBar", ex);
+            }
+        }
 
         //导航逻辑实现，根据传入的视图名称导航
         private void NavigateTo(string viewName)

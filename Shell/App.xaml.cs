@@ -31,6 +31,7 @@ namespace Shell
             moduleCatalog.AddModule<StateMachineModule.StateMachineModule>();
             moduleCatalog.AddModule<ReportModule.ReportModule>();
             moduleCatalog.AddModule<SettingsModule.SettingsModule>();
+            moduleCatalog.AddModule<MonitorModule.DeviceMonitorModule>();
         }
 
         protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -66,6 +67,9 @@ namespace Shell
             // 报警引擎（订阅者）：状态机判定
             containerRegistry.RegisterSingleton<IAlarmEngine, AlarmEngine>();
 
+            // 窗口管理器（单例窗口：监控/报警）
+            containerRegistry.RegisterSingleton<Shell.Services.WindowManagerService>();
+
             containerRegistry.RegisterForNavigation<HomeView,HomeViewModel>();
             //containerRegistry.RegisterForNavigation<CommandRunView, CommandRunViewModel>();
             //containerRegistry.RegisterForNavigation<LogView>();
@@ -77,8 +81,8 @@ namespace Shell
         {
             base.InitializeShell(shell);
 
-            // 启动数据监测架构：加载数据点配置 → 启动采集 → 启动报警
-            StartMonitoring();
+            // 加载数据点配置（采集/报警由用户点"启用轮询"菜单启动）
+            LoadDataPointConfigs();
 
             shell.Show();
 
@@ -94,27 +98,13 @@ namespace Shell
             }));
         }
 
-        /// <summary>
-        /// 启动数据监测架构：
-        /// 1. 加载数据点配置（独立监测点）
-        /// 2. 启动采集服务（生产者：轮询/订阅 → 写入 DataPointStore）
-        /// 3. 启动报警引擎（订阅者：状态机判定）
-        /// </summary>
-        private void StartMonitoring()
+        /// <summary>加载数据点配置（采集/报警启动由"启用轮询"菜单触发）</summary>
+        private void LoadDataPointConfigs()
         {
             try
             {
-                // 1. 加载数据点配置
                 var configService = Container.Resolve<IDataPointConfigService>();
                 configService.Load();
-
-                // 2. 启动采集服务（生产者）
-                var collectionService = Container.Resolve<DataCollectionService>();
-                collectionService.Start();
-
-                // 3. 启动报警引擎（订阅者）
-                var alarmEngine = Container.Resolve<IAlarmEngine>();
-                alarmEngine.Start();
             }
             catch (Exception ex)
             {

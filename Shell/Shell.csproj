@@ -29,6 +29,7 @@
     <ProjectReference Include="..\Modules\ReportModule\ReportModule.csproj" />
     <ProjectReference Include="..\Modules\SettingsModule\SettingsModule.csproj" />
     <ProjectReference Include="..\Modules\LogModule\LogModule.csproj" />
+    <ProjectReference Include="..\Modules\MonitorModule\MonitorModule.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="NLog.config">
