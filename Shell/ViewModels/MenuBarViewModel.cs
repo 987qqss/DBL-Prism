@@ -87,7 +87,7 @@ namespace Shell.ViewModels
             // 报警自动弹窗：报警触发时若报警窗口未打开则自动打开
             _alarmEngine.AlarmRaised += OnAlarmRaised;
 
-            SettingsCommand = new DelegateCommand(() => StatusMessage = "打开系统设置...");
+            SettingsCommand = new DelegateCommand(OpenSettingsWindow);
             AboutCommand = new DelegateCommand(ShowAbout);
 
             //弹出导航试图的命令
@@ -165,6 +165,8 @@ namespace Shell.ViewModels
             new MenuItemModel { IsSeparator = true },
             new MenuItemModel { Header = "操作日志", IconKind = "History", Command = new DelegateCommand(() => NavigateTo("LogView")) },
             new MenuItemModel { Header = "状态机演示", IconKind = "StateMachine", Command = new DelegateCommand(() => NavigateTo("StateMachineView")) },
+            new MenuItemModel { IsSeparator = true },
+            new MenuItemModel { Header = "系统设置", IconKind = "Settings", Command = SettingsCommand },
         };
 
         private ObservableCollection<MenuItemModel> BuildToolsMenu() => new()
@@ -223,6 +225,16 @@ namespace Shell.ViewModels
             {
                 var vm = _container.Resolve<AlarmModule.ViewModels.AlarmViewModel>();
                 return new AlarmModule.Windows.AlarmWindow(vm);
+            });
+        }
+
+        /// <summary>打开系统设置独立窗口（单例，已打开则前台显示）</summary>
+        private void OpenSettingsWindow()
+        {
+            _windowManager.OpenOrActivate("settings", () =>
+            {
+                var vm = _container.Resolve<SettingsModule.ViewModels.SettingsViewModel>();
+                return new SettingsModule.Windows.SettingsWindow(vm);
             });
         }
 

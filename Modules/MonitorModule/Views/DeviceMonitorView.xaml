@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:prism="http://prismlibrary.com/"
              xmlns:monitor="clr-namespace:MonitorModule"
-             prism:ViewModelLocator.AutoWireViewModel="True"
              Background="Transparent"
              Unloaded="OnUnloaded">
 
