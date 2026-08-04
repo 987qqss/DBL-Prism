@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Core;
 using Core.Interfaces;
 using Core.Models;
 
@@ -24,7 +25,8 @@ public class DataPointConfigService : IDataPointConfigService
     public DataPointConfigService(ILogService logService)
     {
         _logService = logService;
-        _filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "datapoints.json");
+        _filePath = AppPaths.DataPointsFile;
+        AppPaths.EnsureDirectories();
     }
 
     public void Load()
