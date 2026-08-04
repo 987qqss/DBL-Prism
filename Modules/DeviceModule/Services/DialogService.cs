@@ -136,7 +136,36 @@ namespace DeviceModule.Services
         }
 
         //ͨ�������Э�����ͷ��ض�Ӧ��View��ViewModel
-        private (FrameworkElement? View, IProtocolConfigDialogViewModel? ViewModel) 
+        /// <summary>显示报警配置对话框，返回是否已配置</summary>
+        public bool ShowAlarmConfigDialog(DeviceCommand command)
+        {
+            var view = _containerProvider.Resolve<AlarmConfigDialogView>();
+            var viewModel = _containerProvider.Resolve<AlarmConfigDialogViewModel>();
+            view.DataContext = viewModel;
+            viewModel.Initialize(command);
+
+            var window = new Window
+            {
+                Title = viewModel.Title,
+                Content = view,
+                SizeToContent = SizeToContent.WidthAndHeight,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                ResizeMode = ResizeMode.NoResize,
+                Owner = Application.Current.MainWindow,
+                WindowStyle = WindowStyle.ToolWindow
+            };
+
+            viewModel.CloseAction = r =>
+            {
+                window.DialogResult = r;
+                window.Close();
+            };
+
+            var dialogResult = window.ShowDialog();
+            return dialogResult == true;
+        }
+
+        private (FrameworkElement? View, IProtocolConfigDialogViewModel? ViewModel)
             ResolveProtocolConfigView(Core.Interfaces.ProtocolType protocolType)
         {
             switch (protocolType)

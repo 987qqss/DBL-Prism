@@ -27,6 +27,8 @@ namespace DeviceModule
             containerRegistry.Register<DeviceDialogViewModel>();
             containerRegistry.Register<CommandDialogView>();
             containerRegistry.Register<CommandDialogViewModel>();
+            containerRegistry.Register<AlarmConfigDialogView>();
+            containerRegistry.Register<AlarmConfigDialogViewModel>();
 
             containerRegistry.Register<ModbusTCPConfigView>();
             containerRegistry.Register<ModbusTCPConfigViewModel>();

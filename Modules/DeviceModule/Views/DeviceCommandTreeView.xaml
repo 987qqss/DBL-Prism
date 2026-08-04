@@ -110,6 +110,18 @@
                                       Command="{Binding DataContext.AddToQueueCommand, Source={x:Reference CommandTree}}"
                                       CommandParameter="{Binding}" />
                             <Separator />
+                            <MenuItem Header="📡 是否监控" FontSize="12"
+                                      IsCheckable="True"
+                                      IsChecked="{Binding IsMonitored, Mode=TwoWay}"
+                                      Command="{Binding DataContext.ToggleMonitorCommand, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
+                            <MenuItem Header="🚨 添加报警信号" FontSize="12"
+                                      Command="{Binding DataContext.AddAlarmSignalCommand, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
+                            <MenuItem Header="📡 移除监控" FontSize="12"
+                                      Command="{Binding DataContext.RemoveMonitorCommand, Source={x:Reference CommandTree}}"
+                                      CommandParameter="{Binding}" />
+                            <Separator />
                             <MenuItem Header="🗑 删除命令" FontSize="12" Foreground="#EF4444"
                                       Command="{Binding DataContext.DeleteCommand, Source={x:Reference CommandTree}}"
                                       CommandParameter="{Binding}" />

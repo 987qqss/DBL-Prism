@@ -25,4 +25,11 @@ public interface IDataPointConfigService
 
     /// <summary>按设备获取数据点配置</summary>
     IEnumerable<DataPointConfig> GetByDevice(string deviceId);
+
+    /// <summary>
+    /// 根据设备命令的监测标记增量同步配置。
+    /// 用户勾选/取消"是否监控""是否报警"时调用，无需全量扫描。
+    /// 已标记 → 创建或更新对应 DataPointConfig；全部取消 → 删除。
+    /// </summary>
+    void SyncFromCommand(DeviceModel device, DeviceCommand command);
 }

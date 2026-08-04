@@ -88,6 +88,74 @@ public class DataPointConfigService : IDataPointConfigService
         Save();
     }
 
+    /// <summary>
+    /// 根据设备命令的监测标记增量同步配置（勾选即更新，无需全量扫描）。
+    /// IsMonitored 或 IsAlarmEnabled 为 true → 创建/更新对应 DataPointConfig；
+    /// 两者都为 false → 删除已有配置。
+    /// </summary>
+    public void SyncFromCommand(DeviceModel device, DeviceCommand command)
+    {
+        if (device == null || command == null) return;
+
+        // 定位：同一设备 + 同一命令名 = 同一数据点
+        var existing = _configs.FirstOrDefault(c =>
+            c.DeviceId == device.Id && c.PointName == command.Name);
+
+        bool shouldMonitor = command.IsMonitored || command.IsAlarmEnabled;
+
+        if (!shouldMonitor)
+        {
+            // 全部取消：删除已有配置
+            if (existing != null)
+            {
+                _configs.Remove(existing);
+                _logService.Info($"监测配置已移除: {device.Name}.{command.Name}", "DataPoint");
+                Save();
+            }
+            return;
+        }
+
+        // 已标记：创建或更新配置
+        if (existing == null)
+        {
+            existing = new DataPointConfig
+            {
+                Id = Guid.NewGuid().ToString("N"),
+                DeviceId = device.Id,
+                PointName = command.Name,
+                Enabled = true,
+                Source = "Poll",
+                PollIntervalMs = 1000,
+                ProtocolAddress = command.ProtocolAddress,
+                DataFormat = command.DataFormat,
+                Scale = command.Scale,
+                Offset = command.Offset,
+                Unit = command.Unit
+            };
+            _configs.Add(existing);
+        }
+        else
+        {
+            // 更新命令可能变化的地址/格式/单位
+            existing.ProtocolAddress = command.ProtocolAddress;
+            existing.DataFormat = command.DataFormat;
+            existing.Scale = command.Scale;
+            existing.Offset = command.Offset;
+            existing.Unit = command.Unit;
+            existing.Enabled = true;
+        }
+
+        // 报警标记
+        existing.EnableAlarm = command.IsAlarmEnabled;
+        existing.UpperLimit = command.AlarmUpperLimit;
+        existing.LowerLimit = command.AlarmLowerLimit;
+
+        _logService.Info(
+            $"监测配置已同步: {device.Name}.{command.Name} (报警:{(command.IsAlarmEnabled ? "开" : "关")})",
+            "DataPoint");
+        Save();
+    }
+
     public IEnumerable<DataPointConfig> GetByDevice(string deviceId)
         => _configs.Where(c => c.DeviceId == deviceId);
 

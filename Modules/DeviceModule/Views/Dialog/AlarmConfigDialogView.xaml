@@ -1,0 +1,42 @@
+<UserControl x:Class="DeviceModule.Views.AlarmConfigDialogView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="White"
+             Width="360"
+             Padding="16">
+
+    <StackPanel>
+        <!-- 标题 -->
+        <TextBlock Text="{Binding Title}"
+                   FontSize="15" FontWeight="Bold"
+                   Foreground="#1F2937"
+                   Margin="0,0,0,12" />
+
+        <!-- 报警上限 -->
+        <TextBlock Text="报警上限"
+                   FontSize="12" Foreground="#6B7280"
+                   Margin="0,0,0,4" />
+        <TextBox Text="{Binding UpperLimit, UpdateSourceTrigger=PropertyChanged}"
+                 Padding="8,6" FontSize="13"
+                 ToolTip="值超过此限触发报警，可留空" />
+
+        <!-- 报警下限 -->
+        <TextBlock Text="报警下限"
+                   FontSize="12" Foreground="#6B7280"
+                   Margin="0,12,0,4" />
+        <TextBox Text="{Binding LowerLimit, UpdateSourceTrigger=PropertyChanged}"
+                 Padding="8,6" FontSize="13"
+                 ToolTip="值低于此限触发报警，可留空" />
+
+        <!-- 按钮行 -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                    Margin="0,20,0,0">
+            <Button Content="取消" Command="{Binding CancelCommand}"
+                    Width="80" Height="32" Margin="0,0,8,0"
+                    Background="#E5E7EB" Foreground="#374151" />
+            <Button Content="确定" Command="{Binding ConfirmCommand}"
+                    Width="80" Height="32"
+                    Background="#EF4444" Foreground="White" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

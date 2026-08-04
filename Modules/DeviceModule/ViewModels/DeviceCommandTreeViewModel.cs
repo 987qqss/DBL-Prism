@@ -17,6 +17,7 @@ namespace DeviceModule.ViewModels
         private readonly IConfigurationService _configService;
         private readonly IDeviceExecutionService _executionService;
         private readonly ICommandQueueService _queueService;
+        private readonly IDataPointConfigService _dataPointConfigService;
         private readonly IEventAggregator _eventAggregator;
         private object? _selectedItem;
 
@@ -30,7 +31,7 @@ namespace DeviceModule.ViewModels
             }
         }
 
-        public DeviceCommandTreeViewModel(IRegionManager regionManager, Services.IDialogService dialogService, ILogService logService, IConfigurationService configService, IDeviceExecutionService executionService, ICommandQueueService queueService, IEventAggregator eventAggregator)
+        public DeviceCommandTreeViewModel(IRegionManager regionManager, Services.IDialogService dialogService, ILogService logService, IConfigurationService configService, IDeviceExecutionService executionService, ICommandQueueService queueService, IDataPointConfigService dataPointConfigService, IEventAggregator eventAggregator)
         {
             _regionManager = regionManager;
             _dialogService = dialogService;
@@ -38,6 +39,7 @@ namespace DeviceModule.ViewModels
             _configService = configService;
             _executionService = executionService;
             _queueService = queueService;
+            _dataPointConfigService = dataPointConfigService;
             _eventAggregator = eventAggregator;
             AddCommand();
         }
@@ -57,6 +59,9 @@ namespace DeviceModule.ViewModels
         public DelegateCommand<DeviceCommand> DeleteCommand { get; private set; } = null!;
         public DelegateCommand<DeviceCommand> EditCommand { get; private set; } = null!;
         public DelegateCommand<DeviceCommand> AddToQueueCommand { get; private set; } = null!;
+        public DelegateCommand<DeviceCommand> ToggleMonitorCommand { get; private set; } = null!;
+        public DelegateCommand<DeviceCommand> AddAlarmSignalCommand { get; private set; } = null!;
+        public DelegateCommand<DeviceCommand> RemoveMonitorCommand { get; private set; } = null!;
 
         public DelegateCommand AddProductionLine { get; private set; } = null!;
 
@@ -95,6 +100,9 @@ namespace DeviceModule.ViewModels
             DeleteCommand = new DelegateCommand<DeviceCommand>(_DeleteCommand);
             EditCommand = new DelegateCommand<DeviceCommand>(_EditCommand);
             AddToQueueCommand = new DelegateCommand<DeviceCommand>(_AddToQueue);
+            ToggleMonitorCommand = new DelegateCommand<DeviceCommand>(_ToggleMonitor);
+            AddAlarmSignalCommand = new DelegateCommand<DeviceCommand>(_AddAlarmSignal);
+            RemoveMonitorCommand = new DelegateCommand<DeviceCommand>(_RemoveMonitor);
         }
 
         #region 产线右键菜单
@@ -370,6 +378,67 @@ namespace DeviceModule.ViewModels
 
             _queueService.Enqueue(cmd, device.Id);
             _logService.Info($"📥 命令 \"{cmd.Name}\" 已加入执行队列 (设备: {device.Name})", "DeviceTree");
+        }
+
+        // ─── 监测 / 报警标记 ───
+
+        /// <summary>
+        /// 同步"是否监控"：状态由勾选绑定负责（IsChecked TwoWay 已写回 IsMonitored），
+        /// 此命令只按当前状态增量同步监测配置。
+        /// </summary>
+        private void _ToggleMonitor(DeviceCommand? cmd)
+        {
+            if (cmd == null) return;
+            var device = FindDeviceByCommand(cmd);
+            if (device == null)
+            {
+                _logService.Error($"无法设置监控: 未找到 \"{cmd.Name}\" 所属设备", "DeviceTree");
+                return;
+            }
+
+            _dataPointConfigService.SyncFromCommand(device, cmd);
+
+            _logService.Info(cmd.IsMonitored
+                ? $"📡 命令 \"{cmd.Name}\" 已加入监控"
+                : $"📡 命令 \"{cmd.Name}\" 已移出监控", "DeviceTree");
+        }
+
+        /// <summary>添加报警信号：打开报警配置对话框，设置上下限</summary>
+        private void _AddAlarmSignal(DeviceCommand? cmd)
+        {
+            if (cmd == null) return;
+            var device = FindDeviceByCommand(cmd);
+            if (device == null)
+            {
+                _logService.Error($"无法添加报警: 未找到 \"{cmd.Name}\" 所属设备", "DeviceTree");
+                return;
+            }
+
+            var configured = _dialogService.ShowAlarmConfigDialog(cmd);
+            if (!configured) return;
+
+            // 报警必然伴随监控（否则不采集就没有值）
+            if (!cmd.IsMonitored)
+            {
+                cmd.IsMonitored = true;
+            }
+
+            _dataPointConfigService.SyncFromCommand(device, cmd);
+            _logService.Info($"🚨 命令 \"{cmd.Name}\" 已配置报警信号 (上:{cmd.AlarmUpperLimit} 下:{cmd.AlarmLowerLimit})", "DeviceTree");
+        }
+
+        /// <summary>移除监控（同时取消报警标记）</summary>
+        private void _RemoveMonitor(DeviceCommand? cmd)
+        {
+            if (cmd == null) return;
+            var device = FindDeviceByCommand(cmd);
+            if (device == null) return;
+
+            cmd.IsMonitored = false;
+            cmd.IsAlarmEnabled = false;
+            _dataPointConfigService.SyncFromCommand(device, cmd);
+
+            _logService.Info($"📡 命令 \"{cmd.Name}\" 已移除监控", "DeviceTree");
         }
 
         private void _DeleteCommand(DeviceCommand? cmd)

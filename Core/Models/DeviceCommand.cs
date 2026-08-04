@@ -48,6 +48,20 @@ namespace Core.Models
         /// <summary>条件触发表达式，如 "Temperature > 45"</summary>
         public string? TriggerExpression { get; set; }
 
+        // ─── 监测标记（用户右键命令勾选，DataPointConfigService 据此生成监测配置） ───
+
+        /// <summary>是否加入监控轮询（勾选后生成 DataPointConfig）</summary>
+        public bool IsMonitored { get; set; }
+
+        /// <summary>是否启用报警（勾选后随监控一起报警）</summary>
+        public bool IsAlarmEnabled { get; set; }
+
+        /// <summary>报警上限（IsAlarmEnabled 时有效）</summary>
+        public double? AlarmUpperLimit { get; set; }
+
+        /// <summary>报警下限（IsAlarmEnabled 时有效）</summary>
+        public double? AlarmLowerLimit { get; set; }
+
         /// <summary>
         /// 预定义执行委托，签名 Task MethodName(IDeviceDriver? driver)。
         /// 由 CommandScanner 在启动时注入；为 null 时回退到数据驱动路径。
